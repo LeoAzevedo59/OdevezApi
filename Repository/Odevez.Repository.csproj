@@ -7,10 +7,8 @@
   <ItemGroup>
     <Folder Include="AutoMapper\" />
     <Folder Include="Entidades\" />
-    <Folder Include="Enum\" />
-    <Folder Include="Repository\Interfaces\" />
-    <Folder Include="UnitOfWork\" />
     <Folder Include="Querys\" />
+    <Folder Include="UnitOfWork\" />
   </ItemGroup>
 
 </Project>
