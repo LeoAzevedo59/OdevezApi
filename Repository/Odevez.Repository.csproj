@@ -5,10 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="AutoMapper\" />
-    <Folder Include="Entidades\" />
     <Folder Include="Querys\" />
     <Folder Include="UnitOfWork\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Odevez.Utils\Odevez.Utils.csproj" />
   </ItemGroup>
 
 </Project>
