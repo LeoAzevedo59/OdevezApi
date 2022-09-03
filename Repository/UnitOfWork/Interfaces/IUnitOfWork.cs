@@ -6,12 +6,7 @@ namespace Odevez.Repository.UnitOfWork
     public interface IUnitOfWork
     {
         public IClientRepository ClientRepository { get; }
-        public IUserRepository UserRepository { get; }
-        public IOrderRepository OrderRepository { get; }
-        public IProductRepository ProductRepository { get; }
-
-        public IDbConnector DbConnector { get; set; }
-
+        public IDbConnector DbConnector { get; }
 
         void BeginTransaction();
         void CommitTransaction();

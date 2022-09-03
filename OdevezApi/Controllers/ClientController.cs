@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Odevez.Business.Interfaces;
-using Odevez.DTO;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Odevez.Business
 {
-    [Route("api/client")]
+    [Route("api/v1/[Controller]")]
     [ApiController]
     public class ClientController : ControllerBase
     {
@@ -18,12 +16,11 @@ namespace Odevez.Business
         }
 
         [HttpGet]
-        [Route("{clientId}")]
-        public IActionResult GetByIdAsync(int clientId)
+        [Route("obter")]
+        public async Task<IActionResult> ListByFilterAsync(int? clientId = 0, string name = null)
         {
-            var client = new ClientDTO();
-            //var retorno = await _clientBusiness.GetByIdAsync(clientId);
-            return Ok(client);
+            var retorno = await _clientBusiness.ListByFilterAsync(clientId, name);
+            return Ok(retorno);
         }
 
     }

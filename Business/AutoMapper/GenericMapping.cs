@@ -9,10 +9,6 @@ namespace Odevez.Business.GenericMapping
         public GenericMapping()
         {
             CreateMap<ClientDTO, ClientModel>().ReverseMap();
-            CreateMap<OrderDTO, OrderModel>().ReverseMap();
-            CreateMap<OrderItemDTO, OrderItemModel>().ReverseMap();
-            CreateMap<ProductDTO, ProductModel>().ReverseMap();
-            CreateMap<UserDTO, UserModel>().ReverseMap();
         }
     }
 }

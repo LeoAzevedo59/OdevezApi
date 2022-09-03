@@ -9,15 +9,13 @@ namespace Odevez.Repository.UnitOfWork
     {
         private IClientRepository _clientRepository;
 
+        public UnitOfWork(IDbConnector dbConnector)
+        {
+            DbConnector = dbConnector;
+        }
+
         public IClientRepository ClientRepository => _clientRepository ?? (_clientRepository = new ClientRepository(DbConnector));
-
-        public IUserRepository UserRepository => throw new System.NotImplementedException();
-
-        public IOrderRepository OrderRepository => throw new System.NotImplementedException();
-
-        public IProductRepository ProductRepository => throw new System.NotImplementedException();
-
-        public IDbConnector DbConnector { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+        public IDbConnector DbConnector { get; }
 
         public void BeginTransaction()
         {
