@@ -4,7 +4,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Odevez.Business;
 using Odevez.Business.GenericMapping;
+using Odevez.Business.Interfaces;
 
 namespace OdevezApi
 {
@@ -19,7 +21,6 @@ namespace OdevezApi
 
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddAutoMapper(typeof(GenericMapping));
             services.AddControllers();
             services.AddSwaggerGen(c =>
