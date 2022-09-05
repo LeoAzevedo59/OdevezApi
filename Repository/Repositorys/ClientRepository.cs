@@ -39,9 +39,9 @@ namespace Odevez.Repository.Repositorys
                 var client = await _dbConnector.dbConnection.QueryAsync<ClientModel>(query, param: parameters, transaction: _dbConnector.dbTransaction);
                 return client.ToList();
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                throw;
+                throw new Exception(ex.Message);
             }
         }
     }

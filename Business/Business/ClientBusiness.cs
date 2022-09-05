@@ -24,12 +24,15 @@ namespace Odevez.Business
         {
             try
             {
+                if (!string.IsNullOrEmpty(name))
+                    name = name.Trim();
+
                 var retorno = await _clientRepository.ListByFilterAsync(clientId, name);
                 return _mapper.Map<List<ClientDTO>>(retorno);
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                throw;
+                throw new Exception(ex.Message);
             }
         }
     }
