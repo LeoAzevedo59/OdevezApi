@@ -7,5 +7,6 @@ namespace Odevez.Repository.Repositorys.Interfaces
     public interface IClientRepository
     {
         Task<List<ClientModel>> ListByFilterAsync(int? clientId = 0, string name = null);
+        Task<bool> InserirClient(ClientModel clientModel);
     }
 }

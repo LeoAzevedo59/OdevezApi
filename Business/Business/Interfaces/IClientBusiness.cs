@@ -7,5 +7,6 @@ namespace Odevez.Business.Interfaces
     public interface IClientBusiness
     {
         Task<List<ClientDTO>> ListByFilterAsync(int? clientId = 0, string name = null);
+        Task<bool> InserirClient(ClientDTO client);
     }
 }

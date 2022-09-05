@@ -44,5 +44,31 @@ namespace Odevez.Repository.Repositorys
                 throw new Exception(ex.Message);
             }
         }
+        public async Task<bool> InserirClient(ClientModel clientModel)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                string query = @"INSERT CLIENT (CREATEDAT, NAME, EMAIL, PHONENUMBER, ADRESS, PASSWORDHASH)
+                                        VALUES (@DATE, @NAME, @EMAIL, @PHONE, @ADRESS, @PASSWORD)";
+
+                parameters.Add("@DATE", DateTime.Now.Date);
+                parameters.Add("@NAME", clientModel.Name);
+                parameters.Add("@EMAIL", clientModel.Email);
+                parameters.Add("@PHONE", clientModel.PhoneNumber);
+                parameters.Add("@ADRESS", clientModel.Adress);
+                parameters.Add("@PASSWORD", clientModel.PasswordHash);
+
+                var client = await _dbConnector.dbConnection.ExecuteAsync(query, param: parameters, transaction: _dbConnector.dbTransaction);
+                if (client > 0)
+                    return true;
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

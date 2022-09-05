@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Odevez.Business.Interfaces;
+using Odevez.DTO;
+using Odevez.Utils.Enum;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
@@ -36,5 +38,23 @@ namespace Odevez.Business
             }
         }
 
+        [HttpPost]
+        [Route("inserir")]
+        public async Task<IActionResult> InserirClient([FromBody] ClientDTO client)
+        {
+            try
+            {
+                var retorno = await _clientBusiness.InserirClient(client);
+
+                if (retorno)
+                    return Ok(ResponseMessageEnum.Sucesso.ToString());
+
+                return BadRequest(ResponseMessageEnum.Ja_Existente_No_Banco.ToString());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
