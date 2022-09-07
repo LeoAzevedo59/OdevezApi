@@ -8,6 +8,6 @@ namespace Odevez.Business.Interfaces
     {
         Task<List<ClientDTO>> ListByFilterAsync(int? clientId = 0, string name = null);
         Task<bool> InserirClient(ClientDTO client);
-        Task<bool> LoginClient(long phoneNumber, string password);
+        Task<bool> VerifyPhoneNumber(long phoneNumber);
     }
 }

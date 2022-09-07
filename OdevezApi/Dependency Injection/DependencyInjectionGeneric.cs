@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Odevez.Business;
+using Odevez.Business.Business;
+using Odevez.Business.Business.Interfaces;
 using Odevez.Business.Interfaces;
 using Odevez.Repository.Repositorys;
 using Odevez.Repository.Repositorys.Interfaces;
@@ -20,12 +22,14 @@ namespace Odevez.API.Dependency_Injection
             #region Business
 
             services.AddScoped<IClientBusiness, ClientBusiness>();
+            services.AddScoped<IAutenticarBusiness, AutenticarBusiness>();
 
             #endregion
 
             #region Repository
 
             services.AddScoped<IClientRepository, ClientRepository>();
+            services.AddScoped<IAutenticarRepository, AutenticarRepository>();
 
             #endregion
         }

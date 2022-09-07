@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Odevez.Business.Business.Interfaces;
 using Odevez.Business.Interfaces;
 using Odevez.DTO;
 using Odevez.Repository.Models;
@@ -12,11 +13,13 @@ namespace Odevez.Business
     public class ClientBusiness : IClientBusiness
     {
         private readonly IClientRepository _clientRepository;
+        private readonly IAutenticarBusiness _autenticarBusiness;
         private readonly IMapper _mapper;
 
-        public ClientBusiness(IClientRepository clientRepository, IMapper mapper)
+        public ClientBusiness(IClientRepository clientRepository, IMapper mapper, IAutenticarBusiness autenticarBusiness)
         {
             _clientRepository = clientRepository;
+            _autenticarBusiness = autenticarBusiness;
             _mapper = mapper;
         }
 
@@ -47,7 +50,7 @@ namespace Odevez.Business
                     && !string.IsNullOrEmpty(client.Adress)
                     && !string.IsNullOrEmpty(client.Password))
                 {
-                    string hashPassword = CriptografarSenha(client.Password);
+                    string hashPassword = _autenticarBusiness.CriptografarSenha(client.Password);
                     client.PasswordHash = hashPassword;
 
                     return await _clientRepository.InserirClient(_mapper.Map<ClientModel>(client));
@@ -61,38 +64,9 @@ namespace Odevez.Business
             }
         }
 
-        private string CriptografarSenha(string password)
+        public async Task<bool> VerifyPhoneNumber(long phoneNumber)
         {
-            return BCrypt.Net.BCrypt.HashPassword(password);
-        }
-
-        private bool VerifyPassword(string password, string passwordHash)
-        {
-            return BCrypt.Net.BCrypt.Verify(password, passwordHash);
-        }
-
-        public async Task<bool> LoginClient(long phoneNumber, string password)
-        {
-            try
-            {
-                var passwordHash = await ObterClientePorTelefone(phoneNumber);
-
-                if (VerifyPassword(password.Trim(), passwordHash.PasswordHash))
-                    return true;
-
-                return false;
-
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public async Task<ClientDTO> ObterClientePorTelefone(long phoneNumber)
-        {
-            var retorno = await _clientRepository.ObterClientePorTelefone(phoneNumber);
-            return _mapper.Map<ClientDTO>(retorno);
+            return await _clientRepository.VerifyPhoneNumber(phoneNumber);
         }
     }
 }

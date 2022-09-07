@@ -71,16 +71,26 @@ namespace Odevez.Repository.Repositorys
             }
         }
 
-        public async Task<ClientModel> ObterClientePorTelefone(long phoneNumber)
+        public async Task<bool> VerifyPhoneNumber(long phoneNumber)
         {
-            var parameters = new DynamicParameters();
-            string query = "SELECT * FROM CLIENT WHERE 1=1";
+            try
+            {
+                var parameters = new DynamicParameters();
+                string query = "SELECT NAME FROM CLIENT WHERE 1=1";
 
-            parameters.Add("@PHONE", phoneNumber);
-            query += " AND PHONENUMBER = @PHONE";
+                parameters.Add("@PHONE", phoneNumber);
+                query += " AND PHONENUMBER = @PHONE";
 
-            var client = (await _dbConnector.dbConnection.QueryAsync<ClientModel>(query, param: parameters, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
-            return client;
+                var nameUser = (await _dbConnector.dbConnection.QueryAsync<ClientModel>(query, param: parameters, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
+                if (nameUser != null)
+                    return true;
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

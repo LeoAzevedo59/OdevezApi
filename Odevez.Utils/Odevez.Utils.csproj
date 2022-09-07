@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <Folder Include="CustomExceptions\" />
+    <Folder Include="Enum\" />
     <Folder Include="Function\" />
   </ItemGroup>
 

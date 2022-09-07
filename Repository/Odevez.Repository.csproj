@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DTO\Odevez.DTO.csproj" />
     <ProjectReference Include="..\Odevez.Utils\Odevez.Utils.csproj" />
   </ItemGroup>
 

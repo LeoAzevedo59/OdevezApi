@@ -1,22 +1,27 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Odevez.Business.Business.Interfaces;
 using Odevez.Business.Interfaces;
 using Odevez.DTO;
-using Odevez.Utils.Enum;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Odevez.Business
 {
     [Route("api/v1/[Controller]")]
     [ApiController]
+    [Authorize]
     public class ClientController : ControllerBase
     {
         private readonly IClientBusiness _clientBusiness;
+        private readonly IAutenticarBusiness _autenticarBusiness;
 
-        public ClientController(IClientBusiness clientBusiness)
+        public ClientController(IClientBusiness clientBusiness, IAutenticarBusiness autenticarBusiness)
         {
             _clientBusiness = clientBusiness;
+            _autenticarBusiness = autenticarBusiness;
         }
 
         [HttpGet]
@@ -27,10 +32,10 @@ namespace Odevez.Business
             {
                 var retorno = await _clientBusiness.ListByFilterAsync(clientId, name);
 
-                if (retorno != null)
+                if (retorno != null && retorno.Count() > 0)
                     return Ok(retorno);
 
-                return NoContent();
+                return BadRequest("Usuário não encontrado.");
             }
             catch (Exception ex)
             {
@@ -40,16 +45,21 @@ namespace Odevez.Business
 
         [HttpPost]
         [Route("inserir")]
+        [AllowAnonymous]
         public async Task<IActionResult> InserirClient([FromBody] ClientDTO client)
         {
             try
             {
+                bool usuarioJaCadastrado = await _clientBusiness.VerifyPhoneNumber(client.PhoneNumber);
+                if (usuarioJaCadastrado)
+                    return BadRequest("Número de celular já utilizado.");
+
                 var retorno = await _clientBusiness.InserirClient(client);
 
                 if (retorno)
-                    return Ok(ResponseMessageEnum.Sucesso.ToString());
+                    return Ok("Usuário cadastrado com sucesso.");
 
-                return BadRequest(ResponseMessageEnum.Ja_Existente_No_Banco.ToString());
+                return BadRequest("Erro");
             }
             catch (Exception ex)
             {
@@ -59,19 +69,20 @@ namespace Odevez.Business
 
         [HttpGet]
         [Route("login")]
-        public async Task<IActionResult> LoginClient([Range(0, Int64.MaxValue, ErrorMessage = "O campo {0}, precisa ser maior ou igual a {1}.")] long phoneNumber, string password)
+        [AllowAnonymous]
+        public async Task<IActionResult> LoginClient([Required, Range(0, Int64.MaxValue, ErrorMessage = "O campo {0}, precisa ser maior ou igual a {1}.")] long phoneNumber, string password)
         {
             try
             {
                 if (string.IsNullOrEmpty(password))
-                    return BadRequest(ResponseMessageEnum.Existe_campo_vazio.ToString());
+                    return BadRequest("Senha é obrigatório.");
 
-                var retorno = await _clientBusiness.LoginClient(phoneNumber, password);
+                var retorno = await _autenticarBusiness.LoginClient(phoneNumber, password);
 
-                if (retorno)
-                    return Ok(ResponseMessageEnum.Sucesso.ToString());
+                if (retorno != null)
+                    return Ok(retorno);
 
-                return BadRequest(ResponseMessageEnum.Ja_Existente_No_Banco.ToString());
+                return BadRequest("Senha incorreta ou usário não cadastrado.");
             }
             catch (Exception ex)
             {
