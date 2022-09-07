@@ -56,5 +56,27 @@ namespace Odevez.Business
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet]
+        [Route("login")]
+        public async Task<IActionResult> LoginClient([Range(0, Int64.MaxValue, ErrorMessage = "O campo {0}, precisa ser maior ou igual a {1}.")] long phoneNumber, string password)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(password))
+                    return BadRequest(ResponseMessageEnum.Existe_campo_vazio.ToString());
+
+                var retorno = await _clientBusiness.LoginClient(phoneNumber, password);
+
+                if (retorno)
+                    return Ok(ResponseMessageEnum.Sucesso.ToString());
+
+                return BadRequest(ResponseMessageEnum.Ja_Existente_No_Banco.ToString());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

@@ -55,10 +55,9 @@ namespace Odevez.Business
                 else
                     throw new Exception($"Campo inválido");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -70,6 +69,30 @@ namespace Odevez.Business
         private bool VerifyPassword(string password, string passwordHash)
         {
             return BCrypt.Net.BCrypt.Verify(password, passwordHash);
+        }
+
+        public async Task<bool> LoginClient(long phoneNumber, string password)
+        {
+            try
+            {
+                var passwordHash = await ObterClientePorTelefone(phoneNumber);
+
+                if (VerifyPassword(password.Trim(), passwordHash.PasswordHash))
+                    return true;
+
+                return false;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<ClientDTO> ObterClientePorTelefone(long phoneNumber)
+        {
+            var retorno = await _clientRepository.ObterClientePorTelefone(phoneNumber);
+            return _mapper.Map<ClientDTO>(retorno);
         }
     }
 }

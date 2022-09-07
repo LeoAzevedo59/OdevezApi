@@ -8,5 +8,6 @@ namespace Odevez.Repository.Repositorys.Interfaces
     {
         Task<List<ClientModel>> ListByFilterAsync(int? clientId = 0, string name = null);
         Task<bool> InserirClient(ClientModel clientModel);
+        Task<ClientModel> ObterClientePorTelefone(long phoneNumber);
     }
 }

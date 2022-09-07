@@ -70,5 +70,17 @@ namespace Odevez.Repository.Repositorys
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<ClientModel> ObterClientePorTelefone(long phoneNumber)
+        {
+            var parameters = new DynamicParameters();
+            string query = "SELECT * FROM CLIENT WHERE 1=1";
+
+            parameters.Add("@PHONE", phoneNumber);
+            query += " AND PHONENUMBER = @PHONE";
+
+            var client = (await _dbConnector.dbConnection.QueryAsync<ClientModel>(query, param: parameters, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
+            return client;
+        }
     }
 }
