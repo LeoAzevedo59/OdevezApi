@@ -51,7 +51,7 @@ namespace Odevez.Business.Business
             {
                 var clientDTO = await ObterPasswordHash(phoneNumber);
 
-                if (VerifyPassword(password.Trim(), clientDTO.PasswordHash))
+                if (clientDTO != null && VerifyPassword(password.Trim(), clientDTO.PasswordHash))
                     return GenerateTokenAsync(clientDTO);
 
                 return null;
