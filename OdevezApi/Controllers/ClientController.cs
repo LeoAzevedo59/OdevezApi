@@ -44,7 +44,7 @@ namespace Odevez.Business
         }
 
         [HttpPost]
-        [Route("inserir")]
+        [Route("cadastrar")]
         [AllowAnonymous]
         public async Task<IActionResult> InserirClient([FromBody] ClientDTO client)
         {
