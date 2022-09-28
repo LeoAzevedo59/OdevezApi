@@ -47,7 +47,6 @@ namespace Odevez.Business
                     && !string.IsNullOrEmpty(client.Name)
                     && !string.IsNullOrEmpty(client.Email)
                     && client.PhoneNumber > 0
-                    && !string.IsNullOrEmpty(client.Adress)
                     && !string.IsNullOrEmpty(client.Password))
                 {
                     string hashPassword = _autenticarBusiness.CriptografarSenha(client.Password);
