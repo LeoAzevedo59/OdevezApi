@@ -5,7 +5,7 @@ namespace Odevez.Business.Business.Interfaces
 {
     public interface IAutenticarBusiness
     {
-        string CriptografarSenha(string password);
-        Task<TokenDTO> LoginClient(long phoneNumber, string password);
+        string CriptografarSenha(string senha);
+        Task<TokenDTO> LoginUsuario(string celular, string senha);
     }
 }

@@ -77,7 +77,7 @@ namespace Odevez.Business
                 if (string.IsNullOrEmpty(password))
                     return BadRequest("Senha é obrigatório.");
 
-                var retorno = await _autenticarBusiness.LoginClient(phoneNumber, password);
+                var retorno = await _autenticarBusiness.LoginUsuario(phoneNumber.ToString(), password);
 
                 if (retorno != null)
                     return Ok(retorno);

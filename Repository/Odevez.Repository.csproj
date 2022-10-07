@@ -5,7 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Querys\" />
+    <Compile Remove="Querys\**" />
+    <EmbeddedResource Remove="Querys\**" />
+    <None Remove="Querys\**" />
   </ItemGroup>
 
   <ItemGroup>
