@@ -30,9 +30,9 @@ namespace Odevez.Business.Business
             return BCrypt.Net.BCrypt.Verify(password, passwordHash);
         }
 
-        private async Task<ClientDTO> ObterPasswordHash(long phoneNumber)
+        private async Task<UsuarioDTO> ObterPasswordHash(string celular)
         {
-            var retorno = await _autenticarRepository.ObterPasswordHash(phoneNumber);
+            var retorno = await _autenticarRepository.ObterPasswordHash(celular);
             return retorno;
         }
 
@@ -40,19 +40,19 @@ namespace Odevez.Business.Business
 
         #region Métodos públicos
 
-        public string CriptografarSenha(string password)
+        public string CriptografarSenha(string senha)
         {
-            return BCrypt.Net.BCrypt.HashPassword(password);
+            return BCrypt.Net.BCrypt.HashPassword(senha);
         }
 
-        public async Task<TokenDTO> LoginClient(long phoneNumber, string password)
+        public async Task<TokenDTO> LoginUsuario(string celular, string senha)
         {
             try
             {
-                var clientDTO = await ObterPasswordHash(phoneNumber);
+                var usuarioDTO = await ObterPasswordHash(celular);
 
-                if (clientDTO != null && VerifyPassword(password.Trim(), clientDTO.PasswordHash))
-                    return GenerateTokenAsync(clientDTO);
+                if (usuarioDTO != null && VerifyPassword(senha.Trim(), usuarioDTO.SenhaHash))
+                    return GenerateTokenAsync(usuarioDTO);
 
                 return null;
 
@@ -63,7 +63,7 @@ namespace Odevez.Business.Business
             }
         }
 
-        private TokenDTO GenerateTokenAsync(ClientDTO client)
+        private TokenDTO GenerateTokenAsync(UsuarioDTO usuario)
         {
             try
             {
@@ -79,10 +79,10 @@ namespace Odevez.Business.Business
                     NotBefore = date,
                     Expires = expire,
                     SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature),
-                    Subject = new ClaimsIdentity(new GenericIdentity(client.Id.ToString(), JwtBearerDefaults.AuthenticationScheme),
+                    Subject = new ClaimsIdentity(new GenericIdentity(usuario.Id.ToString(), JwtBearerDefaults.AuthenticationScheme),
                     new[]
                     {
-                new Claim(ClaimTypes.NameIdentifier, client.Id.ToString())
+                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString())
                     })
                 });
 

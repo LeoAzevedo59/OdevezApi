@@ -15,15 +15,15 @@ namespace Odevez.Repository.Repositorys.Interfaces
             _dbConnector = dbConnector;
         }
 
-        public async Task<ClientDTO> ObterPasswordHash(long phoneNumber)
+        public async Task<UsuarioDTO> ObterPasswordHash(string celular)
         {
             var parameters = new DynamicParameters();
-            string query = "SELECT PASSWORDHASH, ID FROM CLIENT WHERE 1=1";
+            string query = "SELECT SENHAHASH, ID FROM USUARIO WHERE 1=1";
 
-            parameters.Add("@PHONE", phoneNumber);
-            query += " AND PHONENUMBER = @PHONE";
+            parameters.Add("@CELULAR", celular);
+            query += " AND CELULAR = @CELULAR";
 
-            var passwordHash = (await _dbConnector.dbConnection.QueryAsync<ClientDTO>(query, param: parameters, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
+            var passwordHash = (await _dbConnector.dbConnection.QueryAsync<UsuarioDTO>(query, param: parameters, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
             return passwordHash;
         }
     }

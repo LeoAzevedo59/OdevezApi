@@ -5,6 +5,6 @@ namespace Odevez.Repository.Repositorys.Interfaces
 {
     public interface IAutenticarRepository
     {
-        Task<ClientDTO> ObterPasswordHash(long phoneNumber);
+        Task<UsuarioDTO> ObterPasswordHash(string celular);
     }
 }
