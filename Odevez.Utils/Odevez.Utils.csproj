@@ -5,9 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="CustomExceptions\" />
-    <Folder Include="Enum\" />
-    <Folder Include="Function\" />
+    <Compile Remove="CustomExceptions\**" />
+    <Compile Remove="Function\**" />
+    <EmbeddedResource Remove="CustomExceptions\**" />
+    <EmbeddedResource Remove="Function\**" />
+    <None Remove="CustomExceptions\**" />
+    <None Remove="Function\**" />
   </ItemGroup>
 
 </Project>

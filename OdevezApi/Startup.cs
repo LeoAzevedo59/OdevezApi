@@ -35,12 +35,13 @@ namespace OdevezApi
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "OdevezApi", Version = "v1" });
 
-                c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme()
+                c.AddSecurityDefinition("Bearrer", new OpenApiSecurityScheme()
                 {
-                    Description = "Beared token",
-                    In = ParameterLocation.Header,
+                    Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
                     Name = "Authorization",
-                    Type = SecuritySchemeType.ApiKey
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "tomsAuth"
                 });
 
                 c.OperationFilter<SecurityRequirementsOperationFilter>();
