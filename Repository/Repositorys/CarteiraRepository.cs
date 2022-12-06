@@ -2,6 +2,7 @@
 using Odevez.DTO;
 using Odevez.Repository.DataConnector;
 using Odevez.Repository.Repositorys.Interfaces;
+using Odevez.Utils.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -97,15 +98,16 @@ namespace Odevez.Repository.Repositorys
             try
             {
                 var parameters = new DynamicParameters();
-                string query = @"INSERT EXTRATO(DATULTALT, DATACRIACAO, VALOR, CARTEIRA, CATEGORIA, MOVIMENTACAO)
-                                        VALUES (@DATULTALT, @DATACRIACAO, @VALOR, @CARTEIRA, @CATEGORIA, @MOVIMENTACAO)";
+                string query = @"INSERT EXTRATO(DATULTALT, DATACRIACAO, VALOR, CARTEIRA, CATEGORIA, MOVIMENTACAO, DESCRICAO)
+                                        VALUES (@DATULTALT, @DATACRIACAO, @VALOR, @CARTEIRA, @CATEGORIA, @MOVIMENTACAO, @DESCRICAO)";
 
                 parameters.Add("@DATULTALT", extrato.DatUltAlt);
-                parameters.Add("@DATACRIACAO", extrato.DataMovimentacao);
+                parameters.Add("@DATACRIACAO", extrato.DataCriacao);
                 parameters.Add("@VALOR", extrato.Valor);
                 parameters.Add("@CARTEIRA", extrato.Carteira.Codigo);
                 parameters.Add("@CATEGORIA", extrato.Categoria.Codigo);
                 parameters.Add("@MOVIMENTACAO", extrato.Movimentacao.Codigo);
+                parameters.Add("@DESCRICAO", extrato.Descricao);
 
                 var retorno = await _dbConnector.dbConnection.ExecuteAsync(query, param: parameters, transaction: _dbConnector.dbTransaction);
                 if (retorno > 0)
@@ -153,6 +155,116 @@ namespace Odevez.Repository.Repositorys
 
                 var retorno = (await _dbConnector.dbConnection.QueryAsync<decimal>(query, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
                 return retorno;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<List<TipoCarteiraDTO>> ObterTipoCarteira()
+        {
+            try
+            {
+                var retorno = new List<TipoCarteiraDTO>();
+                string query = $"SELECT * FROM TIPOCARTEIRA";
+
+                retorno = (await _dbConnector.dbConnection.QueryAsync<TipoCarteiraDTO>(query, transaction: _dbConnector.dbTransaction)).ToList();
+                return retorno;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<bool> IncluirTransacaoCarteira(TipoCarteiraDTO tipoCarteira)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                string query = @"   INSERT CARTEIRA(DATULTALT, DATACRIACAO, USUARIO, TIPOCARTEIRA, DESCRICAO, FECHAMENTOFATURA, VENCIMENTOFATURA, VALOR)
+                                    VALUES(@DATULTALT, @DATACRIACAO, @USUARIO, @TIPOCARTEIRA, @DESCRICAO, @FECHAMENTOFATURA, @VENCIMENTOFATURA, @VALOR)";
+
+                parameters.Add("@DATULTALT", DateTime.Now.Date);
+                parameters.Add("@DATACRIACAO", DateTime.Now.Date);
+                parameters.Add("@USUARIO", tipoCarteira.Usuario);
+                parameters.Add("@TIPOCARTEIRA", tipoCarteira.TipoCarteira);
+                parameters.Add("@DESCRICAO", tipoCarteira.Descricao);
+                parameters.Add("@FECHAMENTOFATURA", tipoCarteira.FechamentoFatura);
+                parameters.Add("@VENCIMENTOFATURA", tipoCarteira.VencimentoFatura);
+                parameters.Add("@VALOR", decimal.Zero);
+
+
+                var retorno = await _dbConnector.dbConnection.ExecuteAsync(query, param: parameters, transaction: _dbConnector.dbTransaction);
+                if (retorno > 0)
+                    return true;
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<List<CarteiraDTO>> ObterCarteira(int usuario, int tipoCarteira)
+        {
+            try
+            {
+
+                var retorno = new List<CarteiraDTO>();
+                string query = @$"  SELECT * FROM CARTEIRA
+                                    WHERE USUARIO = {usuario}";
+
+                if (tipoCarteira != 12)
+                    query += $" AND TIPOCARTEIRA = { (int)tipoCarteira }";
+
+                retorno = (await _dbConnector.dbConnection.QueryAsync<CarteiraDTO>(query, transaction: _dbConnector.dbTransaction)).ToList();
+                return retorno;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<decimal> ObterValorCarteiraPorTipoCarteira(int usuario, int tipoCarteira)
+        {
+            try
+            {
+                string query = $"SELECT COALESCE(SUM(VALOR),0) FROM CARTEIRA WHERE USUARIO = '{usuario}'";
+
+                if (tipoCarteira != 12)
+                    query += $" AND TIPOCARTEIRA = { (int)tipoCarteira }";
+
+                var retorno = (await _dbConnector.dbConnection.QueryAsync<decimal>(query, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
+                return retorno;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task ExcluirCarteira(int usuario, int carteira)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                string queryExtrato = @" DELETE FROM EXTRATO
+                                         WHERE CARTEIRA = @CODIGO";
+
+                parameters.Add("@CODIGO", carteira);
+
+                await _dbConnector.dbConnection.ExecuteAsync(queryExtrato, param: parameters, transaction: _dbConnector.dbTransaction);
+
+                string query = @"   DELETE FROM CARTEIRA
+                                    WHERE CODIGO = @CODIGO AND USUARIO = @USUARIO";
+
+                parameters.Add("@USUARIO", usuario);
+
+                await _dbConnector.dbConnection.ExecuteAsync(query, param: parameters, transaction: _dbConnector.dbTransaction);
             }
             catch (Exception ex)
             {

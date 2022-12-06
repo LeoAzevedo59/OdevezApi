@@ -103,31 +103,44 @@ namespace Odevez.Business.Business
 
         private ExtratoDTO popularExtrato(ExtratoViewModel extratoViewModel)
         {
-            ExtratoDTO extrato = new ExtratoDTO()
-            {
-                Codigo = extratoViewModel.Codigo,
-                DataMovimentacao = Convert.ToDateTime(extratoViewModel.DataMovimentacao),
-                DatUltAlt = DateTime.Now.Date,
-                Descricao = extratoViewModel.Descricao,
-                Valor = extratoViewModel.Valor,
-                Carteira = new CarteiraDTO()
-                {
-                    Codigo = extratoViewModel.Carteira.Codigo,
-                    Descricao = extratoViewModel.Carteira.Descricao
-                },
-                Movimentacao = new MovimentacaoDTO()
-                {
-                    Codigo = extratoViewModel.Movimentacao.Codigo,
-                    Descricao = extratoViewModel.Movimentacao.Descricao
-                },
-                Categoria = new CategoriaDTO()
-                {
-                    Codigo = extratoViewModel.Categoria.Codigo,
-                    Descricao = extratoViewModel.Categoria.Descricao
-                }
-            };
+            var extratoDTO = _mapper.Map<ExtratoDTO>(extratoViewModel);
+            extratoDTO.DatUltAlt = DateTime.Now.Date;
+            return extratoDTO;
+        }
 
-            return extrato;
+        public async Task<List<TipoCarteiraViewModel>> ObterTipoCarteira()
+        {
+            try
+            {
+                var retornoDTO = await _carteiraRepository.ObterTipoCarteira();
+                var categoriaViewModel = _mapper.Map<List<TipoCarteiraViewModel>>(retornoDTO);
+                return categoriaViewModel;
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> IncluirTipoCarteira(TipoCarteiraDTO tipoCarteira)
+        {
+            return await _carteiraRepository.IncluirTransacaoCarteira(tipoCarteira);
+        }
+
+        public async Task<List<CarteiraDTO>> ObterCarteira(int usuario, int tipoCarteira)
+        {
+            return await _carteiraRepository.ObterCarteira(usuario, tipoCarteira);
+        }
+
+        public async Task<decimal> ObterValorCarteiraPorTipoCarteira(int usuario, int tipoCarteira)
+        {
+            return await _carteiraRepository.ObterValorCarteiraPorTipoCarteira(usuario, tipoCarteira);
+        }
+
+        public async Task ExcluirCarteira(int usuario, int carteira)
+        {
+            await _carteiraRepository.ExcluirCarteira(usuario, carteira);
         }
     }
 }
