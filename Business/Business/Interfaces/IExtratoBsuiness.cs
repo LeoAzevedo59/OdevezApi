@@ -6,6 +6,9 @@ namespace Odevez.Business.Business.Interfaces
 {
     public interface IExtratoBsuiness
     {
-        public Task<List<ExtratoViewModel>> ObterExtratoResumido(int usuario);
+        Task<List<ExtratoViewModel>> ObterExtratoResumido(int usuario);
+        Task<bool> IncluirTransacaoCarteira(ExtratoViewModel extratoViewModel);
+        Task ExcluirExtrato(int extrato, int carteira);
+        Task<ExtratoMesFiltroViewModel> ObterExtrato(int usuario, string data, int carteira);
     }
 }

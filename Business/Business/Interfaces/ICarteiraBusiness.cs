@@ -12,12 +12,13 @@ namespace Odevez.Business.Business.Interfaces
         Task<decimal> ObterValorCarteiraPorUsuario(int usuario);
         Task<List<CarteiraExtratoViewModel>> ObterDescricaoCarteiraPorUsuario(int usuario);
         Task<List<MovimentacaoDTO>> ObterMovimentacaoCarteira();
-        Task<bool> IncluirTransacaoCarteira(ExtratoViewModel extratoViewModel);
         Task<List<CategoriaExtratoViewModel>> ObterCategoriaCarteiraPorUsuario(int usuario);
         Task<List<TipoCarteiraViewModel>> ObterTipoCarteira();
         Task<bool> IncluirTipoCarteira(TipoCarteiraDTO tipoCarteira);
         Task<List<CarteiraDTO>> ObterCarteira(int usuario, int tipoCarteira);
         Task<decimal> ObterValorCarteiraPorTipoCarteira(int usuario, int tipoCarteira);
         Task ExcluirCarteira(int usuario, int carteira);
+        Task<decimal> ObterValorCarteira(int codigo);
+        Task<bool> AlterarValorCarteira(int codigo, decimal valorCarteira);
     }
 }

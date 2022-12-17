@@ -60,15 +60,6 @@ namespace Odevez.API.Controllers
             return Ok(retorno);
         }
 
-        [HttpPost]
-        [Route("incluir-movimentacao-carteira")]
-        public async Task<IActionResult> IncluirTransacaoCarteira([FromBody] ExtratoViewModel extratoViewModel)
-        {
-            bool retorno = await _carteiraBusiness.IncluirTransacaoCarteira(extratoViewModel);
-
-            return Ok(retorno);
-        }
-
         [HttpGet]
         [Route("obter-tipo-carteira")]
         public async Task<IActionResult> ObterTipoCarteira()

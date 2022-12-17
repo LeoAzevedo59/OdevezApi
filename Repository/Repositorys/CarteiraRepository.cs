@@ -93,34 +93,6 @@ namespace Odevez.Repository.Repositorys
             return retorno;
         }
 
-        public async Task<bool> IncluirTransacaoCarteira(ExtratoDTO extrato)
-        {
-            try
-            {
-                var parameters = new DynamicParameters();
-                string query = @"INSERT EXTRATO(DATULTALT, DATACRIACAO, VALOR, CARTEIRA, CATEGORIA, MOVIMENTACAO, DESCRICAO)
-                                        VALUES (@DATULTALT, @DATACRIACAO, @VALOR, @CARTEIRA, @CATEGORIA, @MOVIMENTACAO, @DESCRICAO)";
-
-                parameters.Add("@DATULTALT", extrato.DatUltAlt);
-                parameters.Add("@DATACRIACAO", extrato.DataCriacao);
-                parameters.Add("@VALOR", extrato.Valor);
-                parameters.Add("@CARTEIRA", extrato.Carteira.Codigo);
-                parameters.Add("@CATEGORIA", extrato.Categoria.Codigo);
-                parameters.Add("@MOVIMENTACAO", extrato.Movimentacao.Codigo);
-                parameters.Add("@DESCRICAO", extrato.Descricao);
-
-                var retorno = await _dbConnector.dbConnection.ExecuteAsync(query, param: parameters, transaction: _dbConnector.dbTransaction);
-                if (retorno > 0)
-                    return true;
-
-                return false;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
         public async Task<bool> AlterarValorCarteira(int codigo, decimal valorCarteira)
         {
             try

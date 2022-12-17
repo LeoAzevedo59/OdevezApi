@@ -65,45 +65,23 @@ namespace Odevez.Business.Business
             }
         }
 
-        public async Task<bool> IncluirTransacaoCarteira(ExtratoViewModel extratoViewModel)
+        public async Task<bool> AlterarValorCarteira(int codigo, decimal valorCarteira)
         {
-            try
-            {
-                _unitOfWork.BeginTransaction();
-
-                decimal valorCarteira = 0;
-
-                ExtratoDTO extrato = popularExtrato(extratoViewModel);
-                var retorno = await _carteiraRepository.IncluirTransacaoCarteira(extrato);
-
-                if (retorno)
-                    valorCarteira = await ObterValorCarteira(extrato.Carteira.Codigo);
-
-                if (extrato.Movimentacao.Codigo == (int)MovimentacaoEnum.Entrada)
-                    valorCarteira += extrato.Valor;
-                else if (extrato.Movimentacao.Codigo == (int)MovimentacaoEnum.Saida)
-                    valorCarteira -= extrato.Valor;
-
-                retorno = await _carteiraRepository.AlterarValorCarteira(extrato.Carteira.Codigo, valorCarteira);
-
-                _unitOfWork.CommitTransaction();
-                return retorno;
-            }
-            catch (Exception ex)
-            {
-                _unitOfWork.RollbackTransaction();
-                throw;
-            }
+            return await _carteiraRepository.AlterarValorCarteira(codigo, valorCarteira);
         }
 
-        private async Task<decimal> ObterValorCarteira(int codigo)
+        public async Task<decimal> ObterValorCarteira(int codigo)
         {
             return await _carteiraRepository.ObterValorCarteira(codigo);
         }
 
-        private ExtratoDTO popularExtrato(ExtratoViewModel extratoViewModel)
+        private ExtratoDTO PopularExtrato(ExtratoViewModel extratoViewModel)
         {
             var extratoDTO = _mapper.Map<ExtratoDTO>(extratoViewModel);
+
+            if (extratoDTO.Movimentacao.Codigo == (int)MovimentacaoEnum.Saida)
+                extratoDTO.Valor *= -1;
+
             extratoDTO.DatUltAlt = DateTime.Now.Date;
             return extratoDTO;
         }
