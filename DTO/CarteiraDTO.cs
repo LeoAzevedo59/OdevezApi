@@ -11,7 +11,6 @@ namespace Odevez.DTO
         public int Usuario { get; set; }
         public TipoCarteiraEnum TipoCarteira { get; set; }
         public string Descricao { get; set; }
-        public decimal Valor { get; set; }
         public DateTime? FechamentoFatura { get; set; }
         public DateTime? VencimentoFatura { get; set; }
     }

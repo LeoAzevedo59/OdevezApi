@@ -58,7 +58,6 @@ namespace Odevez.API.Controllers
         public async Task<IActionResult> AlterarStatus([FromBody] ExtratoStatusDTO extrato)
         {
             bool retorno = await _extratoBsuiness.AlterarStatus(extrato);
-
             return Ok(retorno);
         }
 

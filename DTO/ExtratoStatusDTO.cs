@@ -8,5 +8,6 @@ namespace Odevez.DTO
         public int Carteira { get; set; }
         public decimal Valor { get; set; }
         public ExtratoStatusEnum StatusOld { get; set; }
+        public ExtratoStatusEnum Status { get; set; }
     }
 }

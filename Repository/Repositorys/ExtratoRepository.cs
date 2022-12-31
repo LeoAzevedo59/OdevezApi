@@ -232,7 +232,7 @@ namespace Odevez.Repository.Repositorys
 	                                SET STATUS = @STATUS
                                  WHERE CODIGO = @CODIGO";
 
-                parameters.Add("@STATUS", extrato.StatusOld);
+                parameters.Add("@STATUS", extrato.Status);
                 parameters.Add("@CODIGO", extrato.Codigo);
 
 
@@ -328,7 +328,7 @@ namespace Odevez.Repository.Repositorys
                 if (objAlterar.Valor != null)
                 {
                     setParam += ",VALOR = @VALOR";
-                    parameters.Add("@DESCRICAO", objAlterar.Valor);
+                    parameters.Add("@VALOR", objAlterar.Valor);
                 }
 
                 if ((int)objAlterar.Status > 0)

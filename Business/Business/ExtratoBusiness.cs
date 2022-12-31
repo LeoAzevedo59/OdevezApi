@@ -37,14 +37,6 @@ namespace Odevez.Business.Business
                 ExtratoDTO extrato = PopularExtrato(extratoViewModel);
                 var retorno = await _extratoRepository.IncluirExtrato(extrato);
 
-                if (retorno)
-                    valorCarteira = await _carteiraBusiness.ObterValorCarteira(extrato.Carteira.Codigo);
-
-                if (extratoViewModel.Status == ExtratoStatusEnum.Efetivado)
-                    valorCarteira += Convert.ToDecimal(extrato.Valor);
-
-                retorno = await _carteiraBusiness.AlterarValorCarteira(extrato.Carteira.Codigo, valorCarteira);
-
                 _unitOfWork.CommitTransaction();
                 return retorno;
             }
@@ -85,13 +77,10 @@ namespace Odevez.Business.Business
             try
             {
                 decimal valorExtrato = await ObterValorExtratoPorCodigo(extrato);
-                decimal valorCarteira = await _carteiraBusiness.ObterValorCarteira(carteira);
-                decimal novoValorCarteira = valorCarteira - valorExtrato;
 
                 _unitOfWork.BeginTransaction();
 
                 await _extratoRepository.ExcluirExtrato(extrato, carteira);
-                await _carteiraBusiness.AlterarValorCarteira(carteira, novoValorCarteira);
 
                 _unitOfWork.CommitTransaction();
             }
@@ -189,19 +178,9 @@ namespace Odevez.Business.Business
                 _unitOfWork.BeginTransaction();
 
                 if (extrato.StatusOld == ExtratoStatusEnum.Efetivado)
-                {
-                    extrato.StatusOld = ExtratoStatusEnum.Pendente;
-                    decimal valorCarteira = await _carteiraBusiness.ObterValorCarteira(extrato.Carteira);
-                    decimal novoValorCarteira = valorCarteira - extrato.Valor;
-                    await _carteiraBusiness.AlterarValorCarteira(extrato.Carteira, novoValorCarteira);
-                }
+                    extrato.Status = ExtratoStatusEnum.Pendente;
                 else if (extrato.StatusOld == ExtratoStatusEnum.Pendente)
-                {
-                    extrato.StatusOld = ExtratoStatusEnum.Efetivado;
-                    decimal valorCarteira = await _carteiraBusiness.ObterValorCarteira(extrato.Carteira);
-                    decimal novoValorCarteira = valorCarteira + extrato.Valor;
-                    await _carteiraBusiness.AlterarValorCarteira(extrato.Carteira, novoValorCarteira);
-                }
+                    extrato.Status = ExtratoStatusEnum.Efetivado;
 
                 var retorno = await _extratoRepository.AlterarStatus(extrato);
 
@@ -242,31 +221,8 @@ namespace Odevez.Business.Business
                 var extratoOld = _mapper.Map<ExtratoDTO>(extratoViewOld);
 
                 var objAlterar = ValidarAlteracao(extratoOld, extratoNew);
-        
+
                 _unitOfWork.BeginTransaction();
-
-                #region Alterou Valor
-
-                if (!extratoOld.Valor.Equals(extratoNew.Valor))
-                {
-                    objAlterar.Valor = extratoNew.Valor;
-
-                    int codigoCarteira = objAlterar.Carteira.Codigo == 0 ? extratoOld.Carteira.Codigo : objAlterar.Carteira.Codigo;
-                    decimal novoValorCarteira = await _carteiraBusiness.ObterValorCarteira(codigoCarteira);
-
-                    var status = objAlterar.Status == 0 ? extratoOld.Status : objAlterar.Status;
-
-                    var movimentacao = objAlterar.Movimentacao.Codigo == 0 ? extratoOld.Movimentacao.Codigo : objAlterar.Movimentacao.Codigo;
-
-                    if (status == ExtratoStatusEnum.Efetivado && movimentacao == 1)
-                        novoValorCarteira += Convert.ToDecimal(objAlterar.Valor);
-                    else if (status == ExtratoStatusEnum.Efetivado && movimentacao == 2)
-                        novoValorCarteira -= Convert.ToDecimal(objAlterar.Valor);
-
-                    await _carteiraBusiness.AlterarValorCarteira(codigoCarteira, novoValorCarteira);
-                }
-
-                #endregion
 
                 #region Alterou Status
 
@@ -285,7 +241,22 @@ namespace Odevez.Business.Business
                 #region Alterou Movimentacao
 
                 if (!extratoOld.Movimentacao.Codigo.Equals(extratoNew.Movimentacao.Codigo))
+                {
                     objAlterar.Movimentacao.Codigo = extratoNew.Movimentacao.Codigo;
+
+                    if (extratoNew.Movimentacao.Codigo == (int)MovimentacaoEnum.Saida)
+                    {
+                        decimal valor = objAlterar.Valor == null ? (decimal)extratoOld.Valor : (decimal)objAlterar.Valor;
+                        objAlterar.Valor = valor * -1;
+                    }
+
+                    if (extratoOld.Movimentacao.Codigo == (int)MovimentacaoEnum.Saida)
+                    {
+                        decimal valor = objAlterar.Valor == null ? (decimal)extratoOld.Valor : (decimal)objAlterar.Valor;
+                        objAlterar.Valor = valor;
+                    }
+                }
+
 
                 #endregion
 
@@ -314,6 +285,9 @@ namespace Odevez.Business.Business
 
             if (!extratoOld.DataCriacao.Equals(extratoNew.DataCriacao))
                 retorno.DataCriacao = extratoNew.DataCriacao;
+
+            if (!extratoOld.Valor.Equals(extratoNew.Valor))
+                retorno.Valor = extratoNew.Valor;
 
             if (!extratoOld.Descricao.Equals(extratoNew.Descricao))
                 retorno.Descricao = extratoNew.Descricao;

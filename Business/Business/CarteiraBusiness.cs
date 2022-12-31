@@ -25,11 +25,6 @@ namespace Odevez.Business.Business
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<decimal> ObterValorCarteiraPorUsuario(int usuario)
-        {
-            return await _carteiraRepository.ObterValorCarteiraPorUsuario(usuario);
-        }
-
         public async Task<List<CarteiraExtratoViewModel>> ObterDescricaoCarteiraPorUsuario(int usuario)
         {
             try
@@ -65,27 +60,6 @@ namespace Odevez.Business.Business
             }
         }
 
-        public async Task<bool> AlterarValorCarteira(int codigo, decimal valorCarteira)
-        {
-            return await _carteiraRepository.AlterarValorCarteira(codigo, valorCarteira);
-        }
-
-        public async Task<decimal> ObterValorCarteira(int codigo)
-        {
-            return await _carteiraRepository.ObterValorCarteira(codigo);
-        }
-
-        private ExtratoDTO PopularExtrato(ExtratoViewModel extratoViewModel)
-        {
-            var extratoDTO = _mapper.Map<ExtratoDTO>(extratoViewModel);
-
-            if (extratoDTO.Movimentacao.Codigo == (int)MovimentacaoEnum.Saida)
-                extratoDTO.Valor *= -1;
-
-            extratoDTO.DatUltAlt = DateTime.Now.Date;
-            return extratoDTO;
-        }
-
         public async Task<List<TipoCarteiraViewModel>> ObterTipoCarteira()
         {
             try
@@ -101,9 +75,9 @@ namespace Odevez.Business.Business
             }
         }
 
-        public async Task<bool> IncluirTipoCarteira(TipoCarteiraDTO tipoCarteira)
+        public async Task<bool> Incluir(TipoCarteiraDTO tipoCarteira)
         {
-            return await _carteiraRepository.IncluirTransacaoCarteira(tipoCarteira);
+            return await _carteiraRepository.Incluir(tipoCarteira);
         }
 
         public async Task<List<CarteiraDTO>> ObterCarteira(int usuario, int tipoCarteira)
@@ -111,14 +85,24 @@ namespace Odevez.Business.Business
             return await _carteiraRepository.ObterCarteira(usuario, tipoCarteira);
         }
 
-        public async Task<decimal> ObterValorCarteiraPorTipoCarteira(int usuario, int tipoCarteira)
-        {
-            return await _carteiraRepository.ObterValorCarteiraPorTipoCarteira(usuario, tipoCarteira);
-        }
-
         public async Task ExcluirCarteira(int usuario, int carteira)
         {
             await _carteiraRepository.ExcluirCarteira(usuario, carteira);
+        }
+
+        public async Task<decimal> ObterValorPorTipo(int tipoCarteira, int usuario)
+        {
+            return await _carteiraRepository.ObterValorPorTipo(tipoCarteira, usuario);
+        }
+
+        public async Task<decimal> ObterValorPorUsuario(int usuario)
+        {
+            return await _carteiraRepository.ObterValorPorUsuario(usuario);
+        }
+
+        public async Task<decimal> ObterValorPorCodigo(int carteira)
+        {
+            return await _carteiraRepository.ObterValorPorCodigo(carteira);
         }
     }
 }

@@ -19,21 +19,6 @@ namespace Odevez.Repository.Repositorys
             _dbConnector = dbConnector;
         }
 
-        public async Task<decimal> ObterValorCarteiraPorUsuario(int usuario)
-        {
-            try
-            {
-                string query = $"SELECT COALESCE(SUM(VALOR),0) FROM CARTEIRA WHERE USUARIO = '{usuario}'";
-
-                var retorno = (await _dbConnector.dbConnection.QueryAsync<decimal>(query, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
-                return retorno;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
         public async Task<List<CarteiraDTO>> ObterDescricaoCarteiraPorUsuario(int usuario)
         {
             try
@@ -93,47 +78,6 @@ namespace Odevez.Repository.Repositorys
             return retorno;
         }
 
-        public async Task<bool> AlterarValorCarteira(int codigo, decimal valorCarteira)
-        {
-            try
-            {
-                var parameters = new DynamicParameters();
-                string query = @"   UPDATE CARTEIRA
-	                                    SET VALOR = @VALOR, DATULTALT = @DATULTALT
-                                    WHERE CODIGO = @CODIGO";
-
-                parameters.Add("@DATULTALT", DateTime.Now);
-                parameters.Add("@CODIGO", codigo);
-                parameters.Add("@VALOR", valorCarteira);
-
-
-                var retorno = await _dbConnector.dbConnection.ExecuteAsync(query, param: parameters, transaction: _dbConnector.dbTransaction);
-                if (retorno > 0)
-                    return true;
-
-                return false;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public async Task<decimal> ObterValorCarteira(int codigo)
-        {
-            try
-            {
-                string query = $"SELECT COALESCE(SUM(VALOR),0) FROM CARTEIRA WHERE CODIGO = '{codigo}'";
-
-                var retorno = (await _dbConnector.dbConnection.QueryAsync<decimal>(query, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
-                return retorno;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
         public async Task<List<TipoCarteiraDTO>> ObterTipoCarteira()
         {
             try
@@ -150,13 +94,13 @@ namespace Odevez.Repository.Repositorys
             }
         }
 
-        public async Task<bool> IncluirTransacaoCarteira(TipoCarteiraDTO tipoCarteira)
+        public async Task<bool> Incluir(TipoCarteiraDTO tipoCarteira)
         {
             try
             {
                 var parameters = new DynamicParameters();
-                string query = @"   INSERT CARTEIRA(DATULTALT, DATACRIACAO, USUARIO, TIPOCARTEIRA, DESCRICAO, FECHAMENTOFATURA, VENCIMENTOFATURA, VALOR)
-                                    VALUES(@DATULTALT, @DATACRIACAO, @USUARIO, @TIPOCARTEIRA, @DESCRICAO, @FECHAMENTOFATURA, @VENCIMENTOFATURA, @VALOR)";
+                string query = @"   INSERT CARTEIRA(DATULTALT, DATACRIACAO, USUARIO, TIPOCARTEIRA, DESCRICAO, FECHAMENTOFATURA, VENCIMENTOFATURA)
+                                    VALUES(@DATULTALT, @DATACRIACAO, @USUARIO, @TIPOCARTEIRA, @DESCRICAO, @FECHAMENTOFATURA, @VENCIMENTOFATURA)";
 
                 parameters.Add("@DATULTALT", DateTime.Now.Date);
                 parameters.Add("@DATACRIACAO", DateTime.Now.Date);
@@ -165,8 +109,6 @@ namespace Odevez.Repository.Repositorys
                 parameters.Add("@DESCRICAO", tipoCarteira.Descricao);
                 parameters.Add("@FECHAMENTOFATURA", tipoCarteira.FechamentoFatura);
                 parameters.Add("@VENCIMENTOFATURA", tipoCarteira.VencimentoFatura);
-                parameters.Add("@VALOR", decimal.Zero);
-
 
                 var retorno = await _dbConnector.dbConnection.ExecuteAsync(query, param: parameters, transaction: _dbConnector.dbTransaction);
                 if (retorno > 0)
@@ -189,28 +131,10 @@ namespace Odevez.Repository.Repositorys
                 string query = @$"  SELECT * FROM CARTEIRA
                                     WHERE USUARIO = {usuario}";
 
-                if (tipoCarteira != 12)
-                    query += $" AND TIPOCARTEIRA = { (int)tipoCarteira }";
+                if (tipoCarteira > 1)
+                    query += $" AND TIPOCARTEIRA = { tipoCarteira }";
 
                 retorno = (await _dbConnector.dbConnection.QueryAsync<CarteiraDTO>(query, transaction: _dbConnector.dbTransaction)).ToList();
-                return retorno;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public async Task<decimal> ObterValorCarteiraPorTipoCarteira(int usuario, int tipoCarteira)
-        {
-            try
-            {
-                string query = $"SELECT COALESCE(SUM(VALOR),0) FROM CARTEIRA WHERE USUARIO = '{usuario}'";
-
-                if (tipoCarteira != 12)
-                    query += $" AND TIPOCARTEIRA = { (int)tipoCarteira }";
-
-                var retorno = (await _dbConnector.dbConnection.QueryAsync<decimal>(query, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
                 return retorno;
             }
             catch (Exception ex)
@@ -237,6 +161,62 @@ namespace Odevez.Repository.Repositorys
                 parameters.Add("@USUARIO", usuario);
 
                 await _dbConnector.dbConnection.ExecuteAsync(query, param: parameters, transaction: _dbConnector.dbTransaction);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<decimal> ObterValorPorTipo(int tipoCarteira, int usuario)
+        {
+            try
+            {
+                decimal retorno = decimal.Zero;
+                string query = @$"  SELECT COALESCE(SUM(E.VALOR),0) FROM EXTRATO E
+                                    INNER JOIN CARTEIRA C ON E.CARTEIRA = C.CODIGO
+                                    WHERE E.STATUS = 1 AND C.USUARIO = {usuario}";
+
+                if (tipoCarteira > 1)
+                    query += $" AND C.TIPOCARTEIRA = {tipoCarteira}";
+
+                retorno = (await _dbConnector.dbConnection.QueryAsync<decimal>(query, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
+                return retorno;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<decimal> ObterValorPorUsuario(int usuario)
+        {
+            try
+            {
+                decimal retorno = decimal.Zero;
+                string query = @$"  SELECT COALESCE(SUM(E.VALOR),0) FROM EXTRATO E
+                                    INNER JOIN CARTEIRA C ON E.CARTEIRA = C.CODIGO
+                                    WHERE E.STATUS = 1 AND C.USUARIO = {usuario}";
+
+                retorno = (await _dbConnector.dbConnection.QueryAsync<decimal>(query, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
+                return retorno;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<decimal> ObterValorPorCodigo(int carteira)
+        {
+            try
+            {
+                decimal retorno = decimal.Zero;
+                string query = @$"  SELECT COALESCE(SUM(E.VALOR),0) FROM EXTRATO E
+                                    WHERE E.STATUS = 1 AND E.CARTEIRA = {carteira}";
+
+                retorno = (await _dbConnector.dbConnection.QueryAsync<decimal>(query, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
+                return retorno;
             }
             catch (Exception ex)
             {

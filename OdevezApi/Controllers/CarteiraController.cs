@@ -22,15 +22,6 @@ namespace Odevez.API.Controllers
         }
 
         [HttpGet]
-        [Route("obter-valor-carteira-por-usuario")]
-        public async Task<IActionResult> ObterValorCarteiraPorUsuario(int usuario)
-        {
-            decimal retorno = await _carteiraBusiness.ObterValorCarteiraPorUsuario(usuario);
-
-            return Ok(retorno);
-        }
-
-        [HttpGet]
         [Route("obter-descricao-carteira-por-usuario")]
         public async Task<IActionResult> ObterDescricaoCarteiraPorUsuario(int usuario)
         {
@@ -74,7 +65,7 @@ namespace Odevez.API.Controllers
         [Route("incluir-tipo-carteira")]
         public async Task<IActionResult> IncluirTipoCarteira([FromBody] TipoCarteiraDTO tipoCarteira)
         {
-            bool retorno = await _carteiraBusiness.IncluirTipoCarteira(tipoCarteira);
+            bool retorno = await _carteiraBusiness.Incluir(tipoCarteira);
 
             return Ok(retorno);
         }
@@ -88,21 +79,36 @@ namespace Odevez.API.Controllers
             return Ok(retorno);
         }
 
-        [HttpGet]
-        [Route("obter-valor-carteira-por-tipo-carteira")]
-        public async Task<IActionResult> ObterValorCarteiraPorTipoCarteira(int usuario, int tipoCarteira)
-        {
-            decimal retorno = await _carteiraBusiness.ObterValorCarteiraPorTipoCarteira(usuario, tipoCarteira);
-
-            return Ok(retorno);
-        }
-
         [HttpDelete]
         [Route("excluir-carteira")]
         public async Task<IActionResult> ExcluirCarteira(int usuario, int carteira)
         {
             await _carteiraBusiness.ExcluirCarteira(usuario, carteira);
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("obter-valor-por-tipo")]
+        public async Task<IActionResult> ObterValorPorTipo(int tipoCarteira, int usuario)
+        {
+            decimal retorno = await _carteiraBusiness.ObterValorPorTipo(tipoCarteira, usuario);
+            return Ok(retorno);
+        }
+
+        [HttpGet]
+        [Route("obter-valor-por-usuario")]
+        public async Task<IActionResult> ObterValorPorUsuario(int usuario)
+        {
+            decimal retorno = await _carteiraBusiness.ObterValorPorUsuario(usuario);
+            return Ok(retorno);
+        }
+
+        [HttpGet]
+        [Route("obter-valor-por-codigo")]
+        public async Task<IActionResult> ObterValorPorCodigo(int carteira)
+        {
+            decimal retorno = await _carteiraBusiness.ObterValorPorCodigo(carteira);
+            return Ok(retorno);
         }
     }
 }
