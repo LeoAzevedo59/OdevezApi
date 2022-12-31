@@ -10,8 +10,11 @@ namespace Odevez.Repository.Repositorys.Interfaces
         Task<List<ExtratoDTO>> ObterExtratoResumido(int usuario);
         Task<bool> IncluirExtrato(ExtratoDTO extrato);
         Task ExcluirExtrato(int extrato, int carteira);
-        Task<decimal> ObterExtratoPorCodigo(int extrato);
+        Task<decimal> ObterValorExtratoPorCodigo(int extrato);
         Task<ExtratoMesFiltroDTO> ObterExtrato(int usuario, string dtInicio, string dtFim, int carteira);
         Task<decimal> ObterValorExtratoPorData(string dataInicio, string dtFim, int carteira);
+        Task<bool> AlterarStatus(ExtratoStatusDTO extrato);
+        Task<ExtratoDTO> ObterExtratoPorCodigo(int extrato);
+        Task<bool> Alterar(ExtratoDTO objAlterar);
     }
 }

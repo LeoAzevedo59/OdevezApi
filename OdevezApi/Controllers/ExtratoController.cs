@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Odevez.Business.Business.Interfaces;
 using Odevez.Business.ViewModel;
+using Odevez.DTO;
 using System.Threading.Tasks;
 
 namespace Odevez.API.Controllers
@@ -49,6 +50,33 @@ namespace Odevez.API.Controllers
         {
             await _extratoBsuiness.ExcluirExtrato(extrato, carteira);
             return Ok();
+        }
+
+
+        [HttpPut]
+        [Route("alterar-status")]
+        public async Task<IActionResult> AlterarStatus([FromBody] ExtratoStatusDTO extrato)
+        {
+            bool retorno = await _extratoBsuiness.AlterarStatus(extrato);
+
+            return Ok(retorno);
+        }
+
+        [HttpGet]
+        [Route("obter-extrato-por-codigo")]
+        public async Task<IActionResult> ObterExtratoPorCodigo(int extrato)
+        {
+            var retorno = await _extratoBsuiness.ObterExtratoPorCodigo(extrato);
+            return Ok(retorno);
+        }
+
+        [HttpPut]
+        [Route("alterar")]
+        public async Task<IActionResult> AlterarExtrato([FromBody] ExtratoViewModel extrato)
+        {
+            bool retorno = await _extratoBsuiness.AlterarExtrato(extrato);
+
+            return Ok(retorno);
         }
     }
 }

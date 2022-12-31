@@ -23,12 +23,13 @@ namespace Odevez.Repository.Repositorys
             try
             {
                 var parameters = new DynamicParameters();
-                string query = @"INSERT EXTRATO(DATULTALT, DATACRIACAO, VALOR, CARTEIRA, CATEGORIA, MOVIMENTACAO, DESCRICAO)
-                                        VALUES (@DATULTALT, @DATACRIACAO, @VALOR, @CARTEIRA, @CATEGORIA, @MOVIMENTACAO, @DESCRICAO)";
+                string query = @"INSERT EXTRATO(DATULTALT, DATACRIACAO, VALOR, CARTEIRA, CATEGORIA, MOVIMENTACAO, DESCRICAO, STATUS)
+                                        VALUES (@DATULTALT, @DATACRIACAO, @VALOR, @CARTEIRA, @CATEGORIA, @MOVIMENTACAO, @DESCRICAO, @STATUS)";
 
                 parameters.Add("@DATULTALT", extrato.DatUltAlt);
                 parameters.Add("@DATACRIACAO", extrato.DataCriacao);
                 parameters.Add("@VALOR", extrato.Valor);
+                parameters.Add("@STATUS", extrato.Status);
                 parameters.Add("@CARTEIRA", extrato.Carteira.Codigo);
                 parameters.Add("@CATEGORIA", extrato.Categoria.Codigo);
                 parameters.Add("@MOVIMENTACAO", extrato.Movimentacao.Codigo);
@@ -58,6 +59,7 @@ namespace Odevez.Repository.Repositorys
                                     E.DATACRIACAO,
                                     E.VALOR,
                                     E.DESCRICAO,
+                                    E.STATUS,
                                     --CATEGORIA (CT)
                                     CT.CODIGO,
                                     CT.DESCRICAO,
@@ -69,9 +71,9 @@ namespace Odevez.Repository.Repositorys
                                     M.CODIGO,
                                     M.DESCRICAO
                                     FROM EXTRATO E
-                                    INNER JOIN CARTEIRA C ON C.CODIGO = E.CARTEIRA
-                                    INNER JOIN MOVIMENTACAO M ON M.CODIGO = E.MOVIMENTACAO
-                                    INNER JOIN CATEGORIA CT ON CT.CODIGO = E.CATEGORIA
+                                    INNER JOIN CARTEIRA C ON E.CARTEIRA = C.CODIGO
+                                    INNER JOIN MOVIMENTACAO M ON E.MOVIMENTACAO = M.CODIGO
+                                    INNER JOIN CATEGORIA CT ON E.CATEGORIA = CT.CODIGO
                                     WHERE C.USUARIO = {usuario}
                                     ORDER BY E.CODIGO DESC";
 
@@ -114,7 +116,7 @@ namespace Odevez.Repository.Repositorys
             }
         }
 
-        public async Task<decimal> ObterExtratoPorCodigo(int extrato)
+        public async Task<decimal> ObterValorExtratoPorCodigo(int extrato)
         {
             try
             {
@@ -135,6 +137,7 @@ namespace Odevez.Repository.Repositorys
             {
                 var extratos = new ExtratoMesFiltroDTO();
                 var retorno = new List<ExtratoDTO>();
+                var parameters = new DynamicParameters();
 
                 decimal valorMes = await ObterValorExtratoPorData(dtInicio, dtFim, carteira);
 
@@ -143,6 +146,7 @@ namespace Odevez.Repository.Repositorys
                                     E.DATACRIACAO,
                                     E.VALOR,
                                     E.DESCRICAO,
+                                    E.STATUS,
                                     --CATEGORIA (CT)
                                     CT.CODIGO,
                                     CT.DESCRICAO,
@@ -154,14 +158,30 @@ namespace Odevez.Repository.Repositorys
                                     M.CODIGO,
                                     M.DESCRICAO
                                     FROM EXTRATO E
-                                    INNER JOIN CARTEIRA C ON C.CODIGO = E.CARTEIRA
-                                    INNER JOIN MOVIMENTACAO M ON M.CODIGO = E.MOVIMENTACAO
-                                    INNER JOIN CATEGORIA CT ON CT.CODIGO = E.CATEGORIA
-                                    WHERE C.USUARIO = {usuario} AND E.DATACRIACAO BETWEEN '{dtInicio}' AND '{dtFim}'
+                                    INNER JOIN CARTEIRA C ON E.CARTEIRA = C.CODIGO
+                                    INNER JOIN MOVIMENTACAO M ON E.MOVIMENTACAO = M.CODIGO
+                                    INNER JOIN CATEGORIA CT ON E.CATEGORIA = CT.CODIGO
+                                    WHERE C.USUARIO = @USUARIO AND E.DATACRIACAO BETWEEN @DATAINICIO AND @DATAFIM
+                                    CONDICAO
                                     ORDER BY E.CODIGO DESC";
+
+                parameters.Add("@USUARIO", usuario);
+                parameters.Add("@DATAINICIO", dtInicio);
+                parameters.Add("@DATAFIM", dtFim);
+
+                if (carteira > 0)
+                {
+                    query = query.Replace("CONDICAO", "AND C.CODIGO = @CARTEIRA");
+                    parameters.Add("@CARTEIRA", carteira);
+                }
+                else
+                {
+                    query = query.Replace("CONDICAO", "");
+                }
 
                 retorno = (await _dbConnector.dbConnection.QueryAsync<ExtratoDTO, CategoriaDTO, CarteiraDTO, MovimentacaoDTO, ExtratoDTO>(
                     sql: query,
+                    param: parameters,
                     splitOn: "Codigo",
                     map: (extrato, categoria, carteira, movimentacao) =>
                     {
@@ -189,10 +209,162 @@ namespace Odevez.Repository.Repositorys
             try
             {
                 string query = @$"  SELECT COALESCE(SUM(VALOR),0) FROM EXTRATO
-                                    WHERE DATACRIACAO BETWEEN '{dtInicio}' AND '{dtFim}'";
+                                    WHERE STATUS = 1 AND DATACRIACAO BETWEEN '{dtInicio}' AND '{dtFim}'";
+
+                if (carteira > 0)
+                    query += $" AND CARTEIRA = {carteira}";
 
                 var retorno = (await _dbConnector.dbConnection.QueryAsync<decimal>(query, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
                 return retorno;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<bool> AlterarStatus(ExtratoStatusDTO extrato)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                string query = @"UPDATE EXTRATO
+	                                SET STATUS = @STATUS
+                                 WHERE CODIGO = @CODIGO";
+
+                parameters.Add("@STATUS", extrato.StatusOld);
+                parameters.Add("@CODIGO", extrato.Codigo);
+
+
+                var retorno = await _dbConnector.dbConnection.ExecuteAsync(query, param: parameters, transaction: _dbConnector.dbTransaction);
+                if (retorno > 0)
+                    return true;
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<ExtratoDTO> ObterExtratoPorCodigo(int extrato)
+        {
+            try
+            {
+                var retorno = new ExtratoDTO();
+
+                string query = @$"  SELECT
+                                    E.CODIGO,
+                                    E.DATACRIACAO,
+                                    E.VALOR,
+                                    E.DESCRICAO,
+                                    E.STATUS,
+                                    --CATEGORIA (CT)
+                                    CT.CODIGO,
+                                    CT.DESCRICAO,
+                                    -- CARTEIRA (C)
+                                    C.CODIGO,
+                                    C.USUARIO,
+                                    C.DESCRICAO,
+                                    -- MOVIMENTACAO (M)
+                                    M.CODIGO,
+                                    M.DESCRICAO
+                                    FROM EXTRATO E
+                                    INNER JOIN CARTEIRA C ON E.CARTEIRA = C.CODIGO
+                                    INNER JOIN MOVIMENTACAO M ON E.MOVIMENTACAO = M.CODIGO
+                                    INNER JOIN CATEGORIA CT ON E.CATEGORIA = CT.CODIGO
+                                    WHERE E.CODIGO = {extrato}";
+
+                retorno = (await _dbConnector.dbConnection.QueryAsync<ExtratoDTO, CategoriaDTO, CarteiraDTO, MovimentacaoDTO, ExtratoDTO>(
+                    sql: query,
+                    splitOn: "Codigo",
+                    map: (extrato, categoria, carteira, movimentacao) =>
+                    {
+                        extrato.Categoria = categoria;
+                        extrato.Carteira = carteira;
+                        extrato.Movimentacao = movimentacao;
+                        return extrato;
+                    },
+                    transaction: _dbConnector.dbTransaction
+                    )).FirstOrDefault();
+
+                return retorno;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<bool> Alterar(ExtratoDTO objAlterar)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                string setParam = "";
+                string query = @"   UPDATE EXTRATO
+	                                    SET {SET}
+                                    WHERE CODIGO = @CODIGO";
+
+                parameters.Add("@CODIGO", objAlterar.Codigo);
+
+                #region VALIDAR CAMPO VAZIO
+
+                setParam = " DATULTALT = @DATULTALT";
+
+                if (objAlterar.DataCriacao != null)
+                {
+                    setParam += ",DATACRIACAO = @DATACRIACAO";
+                    parameters.Add("@DATACRIACAO", objAlterar.DataCriacao);
+                }
+
+                if (!string.IsNullOrEmpty(objAlterar.Descricao))
+                {
+                    setParam += ",DESCRICAO = @DESCRICAO";
+                    parameters.Add("@DESCRICAO", objAlterar.Descricao);
+                }
+
+                if (objAlterar.Valor != null)
+                {
+                    setParam += ",VALOR = @VALOR";
+                    parameters.Add("@DESCRICAO", objAlterar.Valor);
+                }
+
+                if ((int)objAlterar.Status > 0)
+                {
+                    setParam += ",STATUS = @STATUS";
+                    parameters.Add("@STATUS", objAlterar.Status);
+                }
+
+                if (objAlterar.Carteira != null && objAlterar.Carteira.Codigo > 0)
+                {
+                    setParam += ",CARTEIRA = @CARTEIRA";
+                    parameters.Add("@CARTEIRA", objAlterar.Carteira.Codigo);
+                }
+
+                if (objAlterar.Categoria != null && objAlterar.Categoria.Codigo > 0)
+                {
+                    setParam += ",CATEGORIA = @CATEGORIA";
+                    parameters.Add("@CATEGORIA", objAlterar.Categoria.Codigo);
+                }
+
+                if (objAlterar.Movimentacao != null && objAlterar.Movimentacao.Codigo > 0)
+                {
+                    setParam += ",MOVIMENTACAO = @MOVIMENTACAO";
+                    parameters.Add("@MOVIMENTACAO", objAlterar.Movimentacao.Codigo);
+                }
+
+                query = query.Replace("{SET}", setParam);
+                parameters.Add("@DATULTALT", objAlterar.DatUltAlt);
+
+                #endregion
+
+                var retorno = await _dbConnector.dbConnection.ExecuteAsync(query, param: parameters, transaction: _dbConnector.dbTransaction);
+                if (retorno > 0)
+                    return true;
+
+                return false;
             }
             catch (Exception ex)
             {

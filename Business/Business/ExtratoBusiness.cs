@@ -40,7 +40,8 @@ namespace Odevez.Business.Business
                 if (retorno)
                     valorCarteira = await _carteiraBusiness.ObterValorCarteira(extrato.Carteira.Codigo);
 
-                valorCarteira += extrato.Valor;
+                if (extratoViewModel.Status == ExtratoStatusEnum.Efetivado)
+                    valorCarteira += Convert.ToDecimal(extrato.Valor);
 
                 retorno = await _carteiraBusiness.AlterarValorCarteira(extrato.Carteira.Codigo, valorCarteira);
 
@@ -83,7 +84,7 @@ namespace Odevez.Business.Business
         {
             try
             {
-                decimal valorExtrato = await ObterExtratoPorCodigo(extrato);
+                decimal valorExtrato = await ObterValorExtratoPorCodigo(extrato);
                 decimal valorCarteira = await _carteiraBusiness.ObterValorCarteira(carteira);
                 decimal novoValorCarteira = valorCarteira - valorExtrato;
 
@@ -101,11 +102,11 @@ namespace Odevez.Business.Business
             }
         }
 
-        public async Task<decimal> ObterExtratoPorCodigo(int extrato)
+        public async Task<decimal> ObterValorExtratoPorCodigo(int extrato)
         {
             try
             {
-                return await _extratoRepository.ObterExtratoPorCodigo(extrato);
+                return await _extratoRepository.ObterValorExtratoPorCodigo(extrato);
             }
             catch (Exception ex)
             {
@@ -179,6 +180,148 @@ namespace Odevez.Business.Business
                     return 12;
             }
             return 0;
+        }
+
+        public async Task<bool> AlterarStatus(ExtratoStatusDTO extrato)
+        {
+            try
+            {
+                _unitOfWork.BeginTransaction();
+
+                if (extrato.StatusOld == ExtratoStatusEnum.Efetivado)
+                {
+                    extrato.StatusOld = ExtratoStatusEnum.Pendente;
+                    decimal valorCarteira = await _carteiraBusiness.ObterValorCarteira(extrato.Carteira);
+                    decimal novoValorCarteira = valorCarteira - extrato.Valor;
+                    await _carteiraBusiness.AlterarValorCarteira(extrato.Carteira, novoValorCarteira);
+                }
+                else if (extrato.StatusOld == ExtratoStatusEnum.Pendente)
+                {
+                    extrato.StatusOld = ExtratoStatusEnum.Efetivado;
+                    decimal valorCarteira = await _carteiraBusiness.ObterValorCarteira(extrato.Carteira);
+                    decimal novoValorCarteira = valorCarteira + extrato.Valor;
+                    await _carteiraBusiness.AlterarValorCarteira(extrato.Carteira, novoValorCarteira);
+                }
+
+                var retorno = await _extratoRepository.AlterarStatus(extrato);
+
+                _unitOfWork.CommitTransaction();
+
+                return retorno;
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.RollbackTransaction();
+                throw;
+            }
+
+        }
+
+        public async Task<ExtratoViewModel> ObterExtratoPorCodigo(int extrato)
+        {
+            try
+            {
+                var retornoDTO = await _extratoRepository.ObterExtratoPorCodigo(extrato);
+                var extratoViewModel = _mapper.Map<ExtratoViewModel>(retornoDTO);
+                return extratoViewModel;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> AlterarExtrato(ExtratoViewModel extrato)
+        {
+            try
+            {
+                bool retorno = false;
+                var extratoNew = _mapper.Map<ExtratoDTO>(extrato);
+
+                var extratoViewOld = await ObterExtratoPorCodigo(extratoNew.Codigo);
+                var extratoOld = _mapper.Map<ExtratoDTO>(extratoViewOld);
+
+                var objAlterar = ValidarAlteracao(extratoOld, extratoNew);
+        
+                _unitOfWork.BeginTransaction();
+
+                #region Alterou Valor
+
+                if (!extratoOld.Valor.Equals(extratoNew.Valor))
+                {
+                    objAlterar.Valor = extratoNew.Valor;
+
+                    int codigoCarteira = objAlterar.Carteira.Codigo == 0 ? extratoOld.Carteira.Codigo : objAlterar.Carteira.Codigo;
+                    decimal novoValorCarteira = await _carteiraBusiness.ObterValorCarteira(codigoCarteira);
+
+                    var status = objAlterar.Status == 0 ? extratoOld.Status : objAlterar.Status;
+
+                    var movimentacao = objAlterar.Movimentacao.Codigo == 0 ? extratoOld.Movimentacao.Codigo : objAlterar.Movimentacao.Codigo;
+
+                    if (status == ExtratoStatusEnum.Efetivado && movimentacao == 1)
+                        novoValorCarteira += Convert.ToDecimal(objAlterar.Valor);
+                    else if (status == ExtratoStatusEnum.Efetivado && movimentacao == 2)
+                        novoValorCarteira -= Convert.ToDecimal(objAlterar.Valor);
+
+                    await _carteiraBusiness.AlterarValorCarteira(codigoCarteira, novoValorCarteira);
+                }
+
+                #endregion
+
+                #region Alterou Status
+
+                if (!extratoOld.Status.Equals(extratoNew.Status))
+                    objAlterar.Status = extratoNew.Status;
+
+                #endregion
+
+                #region Alterou Carteira
+
+                if (!extratoOld.Carteira.Codigo.Equals(extratoNew.Carteira.Codigo))
+                    objAlterar.Carteira.Codigo = extratoNew.Carteira.Codigo;
+
+                #endregion
+
+                #region Alterou Movimentacao
+
+                if (!extratoOld.Movimentacao.Codigo.Equals(extratoNew.Movimentacao.Codigo))
+                    objAlterar.Movimentacao.Codigo = extratoNew.Movimentacao.Codigo;
+
+                #endregion
+
+                retorno = await _extratoRepository.Alterar(objAlterar);
+
+                _unitOfWork.CommitTransaction();
+
+                return retorno;
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.RollbackTransaction();
+                throw;
+            }
+        }
+
+        private ExtratoDTO ValidarAlteracao(ExtratoDTO extratoOld, ExtratoDTO extratoNew)
+        {
+            var retorno = new ExtratoDTO();
+            retorno.Categoria = new CategoriaDTO();
+            retorno.Movimentacao = new MovimentacaoDTO();
+            retorno.Carteira = new CarteiraDTO();
+
+            retorno.DatUltAlt = DateTime.Now.Date;
+            retorno.Codigo = extratoNew.Codigo;
+
+            if (!extratoOld.DataCriacao.Equals(extratoNew.DataCriacao))
+                retorno.DataCriacao = extratoNew.DataCriacao;
+
+            if (!extratoOld.Descricao.Equals(extratoNew.Descricao))
+                retorno.Descricao = extratoNew.Descricao;
+
+            if (!extratoOld.Categoria.Codigo.Equals(extratoNew.Categoria.Codigo))
+                retorno.Categoria.Codigo = extratoNew.Categoria.Codigo;
+
+            return retorno;
         }
     }
 }
