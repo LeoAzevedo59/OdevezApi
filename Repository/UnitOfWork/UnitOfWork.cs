@@ -1,20 +1,15 @@
 ﻿using Odevez.Repository.DataConnector;
-using Odevez.Repository.Repositorys;
-using Odevez.Repository.Repositorys.Interfaces;
 using System.Data;
 
 namespace Odevez.Repository.UnitOfWork
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private IClientRepository _clientRepository;
-
         public UnitOfWork(IDbConnector dbConnector)
         {
             DbConnector = dbConnector;
         }
 
-        public IClientRepository ClientRepository => _clientRepository ?? (_clientRepository = new ClientRepository(DbConnector));
         public IDbConnector DbConnector { get; }
 
         public void BeginTransaction()
