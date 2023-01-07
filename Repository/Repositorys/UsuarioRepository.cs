@@ -16,6 +16,7 @@ namespace Odevez.Repository.Repositorys
         {
             _dbConnector = dbConnector;
         }
+
         public async Task<bool> InserirUsuario(UsuarioDTO usuario)
         {
             try
@@ -79,14 +80,13 @@ namespace Odevez.Repository.Repositorys
             }
         }
 
-        public async Task<bool> VerificarCPF(string cpf)
+        public async Task<bool> VerificarCPF(string email)
         {
             try
             {
-                var parameters = new DynamicParameters();
-                string query = $"SELECT CODIGO FROM USUARIO WHERE CPF = '{cpf}'";
+                string query = $"SELECT CODIGO FROM USUARIO WHERE EMAIL = '{email}'";
 
-                var retorno = (await _dbConnector.dbConnection.QueryAsync<long>(query, param: parameters, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
+                var retorno = (await _dbConnector.dbConnection.QueryAsync<long>(query, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
                 if (retorno > 0)
                     return true;
 
@@ -97,6 +97,42 @@ namespace Odevez.Repository.Repositorys
                 throw new Exception(ex.Message);
             }
             return false;
+        }
+
+        public async Task<string> InserirApelido(UsuarioDTO usuario)
+        {
+            try
+            {
+                string query = $@"UPDATE USUARIO
+	                                SET APELIDO = '{usuario.Apelido}'
+                                 WHERE CODIGO = {usuario.Codigo}";
+
+                var retorno = await _dbConnector.dbConnection.ExecuteAsync(query, transaction: _dbConnector.dbTransaction);
+                if (retorno > 0)
+                    return usuario.Apelido;
+
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<string> ObterNomePorCodigo(int usuario)
+        {
+            try
+            {
+                string query = @$"  SELECT NOME FROM USUARIO
+                                    WHERE CODIGO = {usuario}";
+
+                var retorno = (await _dbConnector.dbConnection.QueryAsync<string>(query, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
+                return retorno;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

@@ -65,7 +65,8 @@ namespace Odevez.Repository.Repositorys
                                     CATEGORIA C
                                     LEFT JOIN USUARIO U ON C.USUARIO = U.CODIGO
                                 WHERE
-                                    C.USUARIO IS NULL OR C.USUARIO = {usuario}";
+                                    C.USUARIO IS NULL OR C.USUARIO = {usuario}
+                                ORDER BY CODIGO DESC";
 
                 retorno = (await _dbConnector.dbConnection.QueryAsync<CategoriaDTO>(query, transaction: _dbConnector.dbTransaction)).ToList();
                 return retorno;

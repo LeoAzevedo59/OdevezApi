@@ -42,7 +42,6 @@ namespace Odevez.API.Controllers
                     return BadRequest("Senha incorreta ou usário não cadastrado.");
                 tokenUsuario.Token = retorno.Token;
                 tokenUsuario.Type = retorno.Type;
-                tokenUsuario.ExpireIn = retorno.ExpireIn;
                 tokenUsuario.Apelido = usuario.Apelido;
                 tokenUsuario.Codigo = usuario.Codigo;
 
@@ -71,6 +70,40 @@ namespace Odevez.API.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("inserir-apelido")]
+        public async Task<IActionResult> InserirApelido([FromBody] UsuarioDTO usuario)
+        {
+            try
+            {
+                var retorno = await _usuarioBusiness.InserirApelido(usuario);
+
+                if (!string.IsNullOrEmpty(retorno))
+                    return Ok(retorno);
+
+                return BadRequest("Erro");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("obter-nome")]
+        public async Task<IActionResult> ObterNomePorCodigo(int usuario)
+        {
+            try
+            {
+                var retorno = await _usuarioBusiness.ObterNomePorCodigo(usuario);
+                return Ok(retorno);
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
     }

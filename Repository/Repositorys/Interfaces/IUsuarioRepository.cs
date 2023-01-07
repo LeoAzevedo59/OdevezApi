@@ -9,5 +9,7 @@ namespace Odevez.Repository.Repositorys.Interfaces
         Task<bool> VerificarCPF(string celular);
         Task<bool> ObterUsuarioPorId(long id);
         Task<UsuarioDTO> ObterUsuarioPorCelular(string celular);
+        Task<string> InserirApelido(UsuarioDTO usuario);
+        Task<string> ObterNomePorCodigo(int usuario);
     }
 }
