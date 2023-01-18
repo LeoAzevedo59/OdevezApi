@@ -62,11 +62,19 @@ namespace Odevez.API.Controllers
         }
 
         [HttpPost]
-        [Route("incluir-tipo-carteira")]
+        [Route("incluirTipo")]
         public async Task<IActionResult> IncluirTipoCarteira([FromBody] TipoCarteiraDTO tipoCarteira)
         {
-            bool retorno = await _carteiraBusiness.Incluir(tipoCarteira);
+            bool retorno = await _carteiraBusiness.IncluirTipo(tipoCarteira);
 
+            return Ok(retorno);
+        }
+
+        [HttpPost]
+        [Route("incluir")]
+        public async Task<IActionResult> Incluir([FromBody] CarteiraDTO carteira)
+        {
+            bool retorno = await _carteiraBusiness.Incluir(carteira);
             return Ok(retorno);
         }
 
@@ -108,6 +116,14 @@ namespace Odevez.API.Controllers
         public async Task<IActionResult> ObterValorPorCodigo(int carteira)
         {
             decimal retorno = await _carteiraBusiness.ObterValorPorCodigo(carteira);
+            return Ok(retorno);
+        }
+
+        [HttpGet]
+        [Route("obter")]
+        public async Task<IActionResult> Obter()
+        {
+            var retorno = await _carteiraBusiness.Obter();
             return Ok(retorno);
         }
     }

@@ -24,6 +24,7 @@ namespace Odevez.API.Dependency_Injection
             services.AddScoped<IUsuarioBusiness, UsuarioBusiness>();
             services.AddScoped<ICarteiraBusiness, CarteiraBusiness>();
             services.AddScoped<IExtratoBsuiness, ExtratoBusiness>();
+            services.AddScoped<IBancoBusiness, BancoBusiness>();
 
             #endregion
 
@@ -33,6 +34,7 @@ namespace Odevez.API.Dependency_Injection
             services.AddScoped<IUsuarioRepository, UsuarioRepository>();
             services.AddScoped<ICarteiraRepository, CarteiraRepository>();
             services.AddScoped<IExtratoRepository, ExtratoRepository>();
+            services.AddScoped<IBancoRepository, BancoRepository>();
 
             #endregion
         }

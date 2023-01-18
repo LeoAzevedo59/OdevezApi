@@ -2,9 +2,11 @@
 {
     public enum TipoCarteiraEnum
     {
-        Todos = 0,
-        Credito = 1,
-        Debito = 2,
-        Corretora = 3
+        CREDITO = 1,
+        CONTA_CORRENTE = 2,
+        POUPANCA = 3,
+        CEDULA = 4,
+        OUTROS = 5
+
     }
 }
