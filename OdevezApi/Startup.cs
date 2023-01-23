@@ -98,7 +98,10 @@ namespace OdevezApi
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "OdevezApi v1"));
+                app.UseSwaggerUI(options =>
+                {
+                    options.DefaultModelsExpandDepth(-1);
+                });
             }
 
             app.UseRouting();

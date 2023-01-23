@@ -1,5 +1,4 @@
 ﻿using Odevez.DTO;
-using Odevez.Utils.Enum;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -11,11 +10,13 @@ namespace Odevez.Repository.Repositorys.Interfaces
         Task<List<MovimentacaoDTO>> ObterMovimentacaoCarteira();
         Task<List<CategoriaDTO>> ObterCategoriaCarteiraPorUsuario(int usuario);
         Task<List<TipoCarteiraDTO>> ObterTipoCarteira();
-        Task<bool> Incluir(TipoCarteiraDTO tipoCarteira);
+        Task<bool> IncluirTipo(TipoCarteiraDTO tipoCarteira);
         Task<List<CarteiraDTO>> ObterCarteira(int usuario, int tipoCarteira);
         Task ExcluirCarteira(int usuario, int carteira);
         Task<decimal> ObterValorPorTipo(int tipoCarteira, int usuario);
         Task<decimal> ObterValorPorUsuario(int usuario);
         Task<decimal> ObterValorPorCodigo(int carteira);
+        Task<bool> Incluir(CarteiraDTO carteira);
+        Task<int> ObterUltimaCarteiraPorUsuario(int usuario);
     }
 }

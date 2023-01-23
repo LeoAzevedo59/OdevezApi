@@ -26,7 +26,7 @@ namespace Odevez.Business.Business
                 Random random = new Random();
                 bool ExisteUsuario = false;
 
-                bool usuarioJaCadastrado = await VerificarCPF(usuario.Cpf);
+                bool usuarioJaCadastrado = await VerificarCPF(usuario.Email);
                 if (usuarioJaCadastrado)
                     throw new("CPF já cadastrado.");
 
@@ -38,7 +38,7 @@ namespace Odevez.Business.Business
                 } while (ExisteUsuario);
 
                 usuario.DatUltAlt = DateTime.Now.Date;
-                usuario.Apelido = usuario.Nome; //provisorio
+                usuario.Apelido = string.Empty;
 
                 string senhaPassword = _autenticarBusiness.CriptografarSenha(usuario.Senha);
                 usuario.SenhaHash = senhaPassword;
@@ -62,9 +62,6 @@ namespace Odevez.Business.Business
             if (string.IsNullOrEmpty(usuario.Email))
                 throw new("O campo E-mail não pode ser vazio.");
 
-            if (string.IsNullOrEmpty(usuario.Cpf))
-                throw new("O campo CPF não pode ser vazio.");
-
             if (string.IsNullOrEmpty(usuario.Celular))
                 throw new("O campo Celular não pode ser vazio.");
 
@@ -76,13 +73,6 @@ namespace Odevez.Business.Business
 
             if (usuario.Senha != usuario.ConfirmarSenha)
                 throw new("A senha está diferente da confirmação da senha.");
-
-            //obterPorCPF
-            //validarCPF
-            //validarCelular
-            //validarEmail
-            //validarNome (sem numero)
-            //validarSobrenome (sem numero)
         }
 
         public async Task<bool> VerificarCPF(string cpf)
@@ -93,6 +83,26 @@ namespace Odevez.Business.Business
         public async Task<UsuarioDTO> ObterUsuarioPorCelular(string celular)
         {
             return await _usuarioRepository.ObterUsuarioPorCelular(celular);
+        }
+
+        public async Task<string> InserirApelido(UsuarioDTO usuario)
+        {
+            try
+            {
+                var nome = await ObterNomePorCodigo(Convert.ToInt32(usuario.Codigo));
+                usuario.Apelido = usuario.Apelido is null ? nome : usuario.Apelido;
+
+                return await _usuarioRepository.InserirApelido(usuario);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<string> ObterNomePorCodigo(int usuario)
+        {
+            return await _usuarioRepository.ObterNomePorCodigo(usuario);
         }
     }
 }

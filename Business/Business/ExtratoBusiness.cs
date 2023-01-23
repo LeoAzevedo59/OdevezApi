@@ -241,22 +241,7 @@ namespace Odevez.Business.Business
                 #region Alterou Movimentacao
 
                 if (!extratoOld.Movimentacao.Codigo.Equals(extratoNew.Movimentacao.Codigo))
-                {
                     objAlterar.Movimentacao.Codigo = extratoNew.Movimentacao.Codigo;
-
-                    if (extratoNew.Movimentacao.Codigo == (int)MovimentacaoEnum.Saida)
-                    {
-                        decimal valor = objAlterar.Valor == null ? (decimal)extratoOld.Valor : (decimal)objAlterar.Valor;
-                        objAlterar.Valor = valor * -1;
-                    }
-
-                    if (extratoOld.Movimentacao.Codigo == (int)MovimentacaoEnum.Saida)
-                    {
-                        decimal valor = objAlterar.Valor == null ? (decimal)extratoOld.Valor : (decimal)objAlterar.Valor;
-                        objAlterar.Valor = valor;
-                    }
-                }
-
 
                 #endregion
 
@@ -285,6 +270,9 @@ namespace Odevez.Business.Business
 
             if (!extratoOld.DataCriacao.Equals(extratoNew.DataCriacao))
                 retorno.DataCriacao = extratoNew.DataCriacao;
+
+            if (extratoNew.Movimentacao.Codigo == (int)MovimentacaoEnum.Saida)
+                extratoNew.Valor *= -1;
 
             if (!extratoOld.Valor.Equals(extratoNew.Valor))
                 retorno.Valor = extratoNew.Valor;
