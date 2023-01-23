@@ -123,19 +123,21 @@ namespace Odevez.Business.Business
             try
             {
                 _unitOfWork.BeginTransaction();
-
-                var codigoBanco = await _bancoRepository.ObterPorIspb(carteira.BancoDTO.ispb);
-
-                if (codigoBanco > 0)
-                    carteira.BancoDTO.Codigo = codigoBanco;
-                else
+                if (carteira.BancoDTO.code != null)
                 {
-                    var retBanco = await _bancoRepository.Incluir(carteira.BancoDTO);
+                    var codigoBanco = await _bancoRepository.ObterPorIspb(carteira.BancoDTO.ispb);
 
-                    if (retBanco > 0)
-                        codigoBanco = await _bancoRepository.ObterPorIspb(carteira.BancoDTO.ispb);
+                    if (codigoBanco > 0)
+                        carteira.BancoDTO.Codigo = codigoBanco;
                     else
-                        new Exception();
+                    {
+                        var retBanco = await _bancoRepository.Incluir(carteira.BancoDTO);
+
+                        if (retBanco > 0)
+                            codigoBanco = await _bancoRepository.ObterPorIspb(carteira.BancoDTO.ispb);
+                        else
+                            new Exception();
+                    }
                 }
 
                 var retorno = await _carteiraRepository.Incluir(carteira);

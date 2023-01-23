@@ -251,8 +251,8 @@ namespace Odevez.Repository.Repositorys
             try
             {
                 var parameters = new DynamicParameters();
-                string query = @"   INSERT CARTEIRA(DATULTALT, DATACRIACAO, USUARIO, TIPOCARTEIRA, DESCRICAO, FECHAMENTOFATURA, VENCIMENTOFATURA, BANCO, CHKEXIBIRHOME, CHKNAOSOMARPATRIMONIO)
-                                    VALUES(@DATULTALT, @DATACRIACAO, @USUARIO, @TIPOCARTEIRA, @DESCRICAO, @FECHAMENTOFATURA, @VENCIMENTOFATURA, @BANCO, @CHKEXIBIRHOME, @CHKNAOSOMARPATRIMONIO)";
+                string query = @"   INSERT CARTEIRA(DATULTALT, DATACRIACAO, USUARIO, TIPOCARTEIRA, DESCRICAO, FECHAMENTOFATURA, VENCIMENTOFATURA, CHKEXIBIRHOME, CHKNAOSOMARPATRIMONIO :BANCO)
+                                    VALUES(@DATULTALT, @DATACRIACAO, @USUARIO, @TIPOCARTEIRA, @DESCRICAO, @FECHAMENTOFATURA, @VENCIMENTOFATURA, @CHKEXIBIRHOME, @CHKNAOSOMARPATRIMONIO :@BANCO)";
 
                 parameters.Add("@DATULTALT", DateTime.Now);
                 parameters.Add("@DATACRIACAO", DateTime.Now.Date);
@@ -261,9 +261,21 @@ namespace Odevez.Repository.Repositorys
                 parameters.Add("@DESCRICAO", carteira.Descricao);
                 parameters.Add("@FECHAMENTOFATURA", carteira.FechamentoFatura);
                 parameters.Add("@VENCIMENTOFATURA", carteira.VencimentoFatura);
-                parameters.Add("@BANCO", carteira.BancoDTO.Codigo);
                 parameters.Add("@CHKEXIBIRHOME", carteira.ChkExibirHome);
                 parameters.Add("@CHKNAOSOMARPATRIMONIO", carteira.ChkNaoSomarPatrimonio);
+
+                if (carteira.BancoDTO.code != null)
+                {
+                    query = query.Replace(":BANCO", ", BANCO");
+                    query = query.Replace(":@BANCO", ", @BANCO");
+                    parameters.Add("@BANCO", carteira.BancoDTO.Codigo);
+                }
+                else
+                {
+                    query = query.Replace(":BANCO", "");
+                    query = query.Replace(":@BANCO", "");
+                }
+
 
                 var retorno = await _dbConnector.dbConnection.ExecuteAsync(query, param: parameters, transaction: _dbConnector.dbTransaction);
                 if (retorno > 0)
