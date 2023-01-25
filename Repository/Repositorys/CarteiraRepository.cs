@@ -137,6 +137,7 @@ namespace Odevez.Repository.Repositorys
                                       C.DESCRICAO,
                                       C.FECHAMENTOFATURA,
                                       C.VENCIMENTOFATURA,
+                                      C.CHKEXIBIRHOME,
                                       B.CODIGO,
                                       B.NAME
                                       FROM CARTEIRA C
@@ -197,7 +198,7 @@ namespace Odevez.Repository.Repositorys
                 decimal retorno = decimal.Zero;
                 string query = @$"  SELECT COALESCE(SUM(E.VALOR),0) FROM EXTRATO E
                                     INNER JOIN CARTEIRA C ON E.CARTEIRA = C.CODIGO
-                                    WHERE E.STATUS = 1 AND C.USUARIO = {usuario}";
+                                    WHERE E.STATUS = 1 AND C.USUARIO = {usuario} AND C.CHKNAOSOMARPATRIMONIO = 0";
 
                 if (tipoCarteira > 1)
                     query += $" AND C.TIPOCARTEIRA = {tipoCarteira}";
@@ -218,7 +219,7 @@ namespace Odevez.Repository.Repositorys
                 decimal retorno = decimal.Zero;
                 string query = @$"  SELECT COALESCE(SUM(E.VALOR),0) FROM EXTRATO E
                                     INNER JOIN CARTEIRA C ON E.CARTEIRA = C.CODIGO
-                                    WHERE E.STATUS = 1 AND C.USUARIO = {usuario}";
+                                    WHERE E.STATUS = 1 AND C.USUARIO = {usuario} AND C.CHKNAOSOMARPATRIMONIO = 0";
 
                 retorno = (await _dbConnector.dbConnection.QueryAsync<decimal>(query, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
                 return retorno;
@@ -235,6 +236,7 @@ namespace Odevez.Repository.Repositorys
             {
                 decimal retorno = decimal.Zero;
                 string query = @$"  SELECT COALESCE(SUM(E.VALOR),0) FROM EXTRATO E
+                                    INNER JOIN CARTEIRA C ON E.CARTEIRA = C.CODIGO
                                     WHERE E.STATUS = 1 AND E.CARTEIRA = {carteira}";
 
                 retorno = (await _dbConnector.dbConnection.QueryAsync<decimal>(query, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
@@ -298,6 +300,21 @@ namespace Odevez.Repository.Repositorys
                                     ORDER BY CODIGO DESC";
 
                 var retorno = (await _dbConnector.dbConnection.QueryAsync<int>(query, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
+                return retorno;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<CarteiraDTO> ObterPorCodigo(int carteira, int usuario)
+        {
+            try
+            {
+                string query = @$"  SELECT * FROM CARTEIRA WHERE CODIGO = {carteira} AND USUARIO = {usuario}";
+
+                var retorno = await _dbConnector.dbConnection.QueryFirstOrDefaultAsync<CarteiraDTO>(query, transaction: _dbConnector.dbTransaction);
                 return retorno;
             }
             catch (Exception ex)

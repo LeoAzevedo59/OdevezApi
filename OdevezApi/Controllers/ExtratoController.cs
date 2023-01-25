@@ -39,7 +39,7 @@ namespace Odevez.API.Controllers
         [Route("incluir-movimentacao-carteira")]
         public async Task<IActionResult> IncluirTransacaoCarteira([FromBody] ExtratoViewModel extratoViewModel)
         {
-            bool retorno = await _extratoBsuiness.IncluirTransacaoCarteira(extratoViewModel);
+            bool retorno = await _extratoBsuiness.Incluir(extratoViewModel);
 
             return Ok(retorno);
         }

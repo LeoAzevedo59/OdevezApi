@@ -8,7 +8,7 @@ namespace Odevez.Business.Business.Interfaces
     public interface IExtratoBsuiness
     {
         Task<List<ExtratoViewModel>> ObterExtratoResumido(int usuario);
-        Task<bool> IncluirTransacaoCarteira(ExtratoViewModel extratoViewModel);
+        Task<bool> Incluir(ExtratoViewModel extratoViewModel);
         Task ExcluirExtrato(int extrato, int carteira);
         Task<ExtratoMesFiltroViewModel> ObterExtrato(int usuario, string data, int carteira);
         Task<bool> AlterarStatus(ExtratoStatusDTO extrato);

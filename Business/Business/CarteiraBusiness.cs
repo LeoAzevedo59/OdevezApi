@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -217,6 +216,11 @@ namespace Odevez.Business.Business
             }
 
             return retorno;
+        }
+
+        public async Task<CarteiraDTO> ObterPorCodigo(int carteira, int usuario)
+        {
+            return await _carteiraRepository.ObterPorCodigo(carteira, usuario);
         }
     }
 }

@@ -18,5 +18,6 @@ namespace Odevez.Repository.Repositorys.Interfaces
         Task<decimal> ObterValorPorCodigo(int carteira);
         Task<bool> Incluir(CarteiraDTO carteira);
         Task<int> ObterUltimaCarteiraPorUsuario(int usuario);
+        Task<CarteiraDTO> ObterPorCodigo(int carteira, int usuario);
     }
 }
