@@ -19,5 +19,6 @@ namespace Odevez.Repository.Repositorys.Interfaces
         Task<bool> Incluir(CarteiraDTO carteira);
         Task<int> ObterUltimaCarteiraPorUsuario(int usuario);
         Task<CarteiraDTO> ObterPorCodigo(int carteira, int usuario);
+        Task<bool> Alterar(CarteiraDTO carteiraDTO);
     }
 }

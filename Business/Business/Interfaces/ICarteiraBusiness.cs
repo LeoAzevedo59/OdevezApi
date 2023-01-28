@@ -20,5 +20,7 @@ namespace Odevez.Business.Business.Interfaces
         Task<decimal> ObterValorPorCodigo(int carteira);
         Task<bool> Incluir(CarteiraDTO carteira);
         Task<List<BancoDTO>> Obter();
+        Task<CarteiraDTO> ObterPorCodigo(int carteira, int usuario);
+        Task<bool> Alterar(CarteiraDTO carteiraDTO);
     }
 }
