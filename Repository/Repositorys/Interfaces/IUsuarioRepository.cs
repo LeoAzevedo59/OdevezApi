@@ -11,5 +11,6 @@ namespace Odevez.Repository.Repositorys.Interfaces
         Task<UsuarioDTO> ObterUsuarioPorCelular(string celular);
         Task<string> InserirApelido(UsuarioDTO usuario);
         Task<string> ObterNomePorCodigo(int usuario);
+        Task IncluirImagemPerfil(string nomeImagem, int usuario);
     }
 }

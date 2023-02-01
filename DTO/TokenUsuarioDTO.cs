@@ -7,5 +7,6 @@
         public int ExpireIn { get; set; }
         public string Apelido { get; set; }
         public long Codigo { get; set; }
+        public string Imagem { get; set; }
     }
 }

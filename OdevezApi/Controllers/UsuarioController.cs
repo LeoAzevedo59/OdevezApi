@@ -44,6 +44,7 @@ namespace Odevez.API.Controllers
                 tokenUsuario.Type = retorno.Type;
                 tokenUsuario.Apelido = usuario.Apelido;
                 tokenUsuario.Codigo = usuario.Codigo;
+                tokenUsuario.Imagem = usuario.Imagem;
 
                 return Ok(tokenUsuario);
             }
@@ -105,6 +106,13 @@ namespace Odevez.API.Controllers
             {
                 throw;
             }
+        }
+
+        [HttpPost]
+        [Route("incluir-imagem-perfil")]
+        public async Task<IActionResult> IncluirImagemPerfil([FromBody] UploadImageDTO uploadImage)
+        {
+            return Ok(await _usuarioBusiness.IncluirImagemPerfilAzure(uploadImage));
         }
     }
 }
