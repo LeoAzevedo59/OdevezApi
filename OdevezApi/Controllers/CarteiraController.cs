@@ -126,5 +126,21 @@ namespace Odevez.API.Controllers
             var retorno = await _carteiraBusiness.Obter();
             return Ok(retorno);
         }
+
+        [HttpGet]
+        [Route("obter-por-codigo")]
+        public async Task<IActionResult> ObterPorCodigo(int carteira, int usuario)
+        {
+            var retorno = await _carteiraBusiness.ObterPorCodigo(carteira, usuario);
+            return Ok(retorno);
+        }
+
+        [HttpPut]
+        [Route("alterar")]
+        public async Task<IActionResult> Alterar([FromBody] CarteiraDTO carteiraDTO)
+        {
+            var retorno = await _carteiraBusiness.Alterar(carteiraDTO);
+            return Ok(retorno);
+        }
     }
 }

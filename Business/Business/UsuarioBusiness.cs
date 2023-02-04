@@ -1,6 +1,7 @@
 ﻿using Odevez.Business.Business.Interfaces;
 using Odevez.DTO;
 using Odevez.Repository.Repositorys.Interfaces;
+using Odevez.Services;
 using System;
 using System.Threading.Tasks;
 
@@ -103,6 +104,20 @@ namespace Odevez.Business.Business
         public async Task<string> ObterNomePorCodigo(int usuario)
         {
             return await _usuarioRepository.ObterNomePorCodigo(usuario);
+        }
+
+        public async Task<string> IncluirImagemPerfilAzure(UploadImageDTO uploadImage)
+        {
+            var service = new ImageUpdate();
+            var retorno = service.UploadBase64Image(uploadImage.ImageBase64, "container");
+            await IncluirImagemPerfil(retorno, uploadImage.Usuario);
+
+            return retorno;
+        }
+
+        private async Task IncluirImagemPerfil(string nomeImagem, int usuario)
+        {
+            await _usuarioRepository.IncluirImagemPerfil(nomeImagem, usuario);
         }
     }
 }

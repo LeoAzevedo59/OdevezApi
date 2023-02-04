@@ -137,6 +137,7 @@ namespace Odevez.Repository.Repositorys
                                       C.DESCRICAO,
                                       C.FECHAMENTOFATURA,
                                       C.VENCIMENTOFATURA,
+                                      C.CHKEXIBIRHOME,
                                       B.CODIGO,
                                       B.NAME
                                       FROM CARTEIRA C
@@ -197,7 +198,7 @@ namespace Odevez.Repository.Repositorys
                 decimal retorno = decimal.Zero;
                 string query = @$"  SELECT COALESCE(SUM(E.VALOR),0) FROM EXTRATO E
                                     INNER JOIN CARTEIRA C ON E.CARTEIRA = C.CODIGO
-                                    WHERE E.STATUS = 1 AND C.USUARIO = {usuario}";
+                                    WHERE E.STATUS = 1 AND C.USUARIO = {usuario} AND C.CHKNAOSOMARPATRIMONIO = 0";
 
                 if (tipoCarteira > 1)
                     query += $" AND C.TIPOCARTEIRA = {tipoCarteira}";
@@ -218,7 +219,7 @@ namespace Odevez.Repository.Repositorys
                 decimal retorno = decimal.Zero;
                 string query = @$"  SELECT COALESCE(SUM(E.VALOR),0) FROM EXTRATO E
                                     INNER JOIN CARTEIRA C ON E.CARTEIRA = C.CODIGO
-                                    WHERE E.STATUS = 1 AND C.USUARIO = {usuario}";
+                                    WHERE E.STATUS = 1 AND C.USUARIO = {usuario} AND C.CHKNAOSOMARPATRIMONIO = 0";
 
                 retorno = (await _dbConnector.dbConnection.QueryAsync<decimal>(query, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
                 return retorno;
@@ -235,6 +236,7 @@ namespace Odevez.Repository.Repositorys
             {
                 decimal retorno = decimal.Zero;
                 string query = @$"  SELECT COALESCE(SUM(E.VALOR),0) FROM EXTRATO E
+                                    INNER JOIN CARTEIRA C ON E.CARTEIRA = C.CODIGO
                                     WHERE E.STATUS = 1 AND E.CARTEIRA = {carteira}";
 
                 retorno = (await _dbConnector.dbConnection.QueryAsync<decimal>(query, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
@@ -299,6 +301,100 @@ namespace Odevez.Repository.Repositorys
 
                 var retorno = (await _dbConnector.dbConnection.QueryAsync<int>(query, transaction: _dbConnector.dbTransaction)).FirstOrDefault();
                 return retorno;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<CarteiraDTO> ObterPorCodigo(int carteira, int usuario)
+        {
+            try
+            {
+                string query = @$"  SELECT
+                                    TOP 1
+                                    *
+                                    FROM CARTEIRA C
+                                    LEFT JOIN BANCO B ON C.BANCO = B.CODIGO
+                                    WHERE C.CODIGO = {carteira} AND C.USUARIO = {usuario}
+                                    ";
+
+                var retorno = (await _dbConnector.dbConnection.QueryAsync<CarteiraDTO, BancoDTO, CarteiraDTO>(
+                    query,
+                    transaction: _dbConnector.dbTransaction,
+                    splitOn: "Codigo",
+                    map: (carteira, banco) =>
+                    {
+                        carteira.BancoDTO = banco;
+                        return carteira;
+                    })).FirstOrDefault();
+
+                return retorno;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<bool> Alterar(CarteiraDTO carteiraDTO)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var setParams = "";
+
+                string query = @"   UPDATE CARTEIRA
+	                                    SET DATULTALT = @DATULTALT
+                                        {PARAMS}
+                                    WHERE CODIGO = @CODIGO AND USUARIO = @USUARIO";
+
+                parameters.Add("@DATULTALT", DateTime.Now);
+
+                if (carteiraDTO.TipoCarteira != 0)
+                {
+                    parameters.Add("@TIPOCARTEIRA", carteiraDTO.TipoCarteira);
+                    setParams += ",TIPOCARTEIRA = @TIPOCARTEIRA";
+                }
+
+                if (!string.IsNullOrEmpty(carteiraDTO.Descricao))
+                {
+                    setParams += ",DESCRICAO = @DESCRICAO";
+                    parameters.Add("@DESCRICAO", carteiraDTO.Descricao);
+                }
+
+                if (carteiraDTO.FechamentoFatura != null)
+                {
+                    setParams += ",FECHAMENTOFATURA = @FECHAMENTOFATURA";
+                    parameters.Add("@FECHAMENTOFATURA", carteiraDTO.FechamentoFatura);
+                }
+
+                if (carteiraDTO.VencimentoFatura != null)
+                {
+                    setParams += ",VENCIMENTOFATURA = @VENCIMENTOFATURA";
+                    parameters.Add("@VENCIMENTOFATURA", carteiraDTO.VencimentoFatura);
+                }
+
+                setParams += ",CHKEXIBIRHOME = @CHKEXIBIRHOME";
+                parameters.Add("@CHKEXIBIRHOME", carteiraDTO.ChkExibirHome);
+                setParams += ",CHKNAOSOMARPATRIMONIO = @CHKNAOSOMARPATRIMONIO";
+                parameters.Add("@CHKNAOSOMARPATRIMONIO", carteiraDTO.ChkNaoSomarPatrimonio);
+
+                parameters.Add("@USUARIO", carteiraDTO.Usuario);
+                parameters.Add("@CODIGO", carteiraDTO.Codigo);
+
+                if (string.IsNullOrEmpty(setParams))
+                    query = query.Replace("{PARAMS}", "");
+                else
+                    query = query.Replace("{PARAMS}", setParams);
+
+                var retorno = await _dbConnector.dbConnection.ExecuteAsync(query, param: parameters, transaction: _dbConnector.dbTransaction);
+
+                if (retorno > 0)
+                    return true;
+
+                return false;
             }
             catch (Exception ex)
             {

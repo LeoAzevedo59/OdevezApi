@@ -11,6 +11,7 @@ namespace Odevez.DTO
         public string Sobrenome { get; set; }
         public string Apelido { get; set; }
         public string Email { get; set; }
+        public string Imagem { get; set; }
         public string SenhaHash { get; set; }
         public string Senha { get; set; }
         public string ConfirmarSenha { get; set; }

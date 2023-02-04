@@ -26,13 +26,11 @@ namespace Odevez.Business.Business
             _carteiraBusiness = carteiraBusiness;
         }
 
-        public async Task<bool> IncluirTransacaoCarteira(ExtratoViewModel extratoViewModel)
+        public async Task<bool> Incluir(ExtratoViewModel extratoViewModel)
         {
             try
             {
                 _unitOfWork.BeginTransaction();
-
-                decimal valorCarteira = 0;
 
                 ExtratoDTO extrato = PopularExtrato(extratoViewModel);
                 var retorno = await _extratoRepository.IncluirExtrato(extrato);

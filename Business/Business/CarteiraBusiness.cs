@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -215,6 +214,48 @@ namespace Odevez.Business.Business
 
                 return retorno;
             }
+
+            return retorno;
+        }
+
+        public async Task<CarteiraDTO> ObterPorCodigo(int carteira, int usuario)
+        {
+            return await _carteiraRepository.ObterPorCodigo(carteira, usuario);
+        }
+
+        public async Task<bool> Alterar(CarteiraDTO carteiraDTO)
+        {
+            var carteira = await PopularAlteracao(carteiraDTO);
+            return await _carteiraRepository.Alterar(carteira);
+        }
+
+        private async Task<CarteiraDTO> PopularAlteracao(CarteiraDTO carteiraDTO)
+        {
+            var retorno = new CarteiraDTO();
+            retorno.BancoDTO = new BancoDTO();
+
+            var carteiraBD = await ObterPorCodigo(carteiraDTO.Codigo, carteiraDTO.Usuario);
+
+            if (!carteiraBD.TipoCarteira.Equals(carteiraDTO.TipoCarteira))
+                retorno.TipoCarteira = carteiraDTO.TipoCarteira;
+
+            if (!carteiraBD.Descricao.Equals(carteiraDTO.Descricao))
+                retorno.Descricao = carteiraDTO.Descricao;
+
+            if (!carteiraBD.FechamentoFatura.Equals(carteiraDTO.FechamentoFatura))
+                retorno.FechamentoFatura = carteiraDTO.FechamentoFatura;
+
+            if (!carteiraBD.VencimentoFatura.Equals(carteiraDTO.VencimentoFatura))
+                retorno.VencimentoFatura = carteiraDTO.VencimentoFatura;
+
+            if (!carteiraBD.ChkExibirHome.Equals(carteiraDTO.ChkExibirHome))
+                retorno.ChkExibirHome = carteiraDTO.ChkExibirHome;
+
+            if (!carteiraBD.ChkNaoSomarPatrimonio.Equals(carteiraDTO.ChkNaoSomarPatrimonio))
+                retorno.ChkNaoSomarPatrimonio = carteiraDTO.ChkNaoSomarPatrimonio;
+
+            retorno.Codigo = carteiraDTO.Codigo;
+            retorno.Usuario = carteiraDTO.Usuario;
 
             return retorno;
         }

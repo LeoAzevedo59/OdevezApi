@@ -134,5 +134,21 @@ namespace Odevez.Repository.Repositorys
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task IncluirImagemPerfil(string nomeImagem, int usuario)
+        {
+            try
+            {
+                string query = $@"UPDATE USUARIO 
+                                    SET IMAGEM = '{nomeImagem}'
+                                WHERE CODIGO = {usuario}";
+
+                var retorno = await _dbConnector.dbConnection.ExecuteAsync(query, transaction: _dbConnector.dbTransaction);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }
