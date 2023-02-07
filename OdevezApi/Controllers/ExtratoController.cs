@@ -77,5 +77,13 @@ namespace Odevez.API.Controllers
 
             return Ok(retorno);
         }
+
+        [HttpGet]
+        [Route("obter-balanco-mensal")]
+        public async Task<IActionResult> ObterBalancoMensal(int usuario)
+        {
+            var retorno = await _extratoBsuiness.ObterBalancoMensal(usuario);
+            return Ok(retorno);
+        }
     }
 }

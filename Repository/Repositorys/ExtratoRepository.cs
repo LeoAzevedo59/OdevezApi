@@ -372,5 +372,27 @@ namespace Odevez.Repository.Repositorys
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<List<BalancoDTO>> ObterBalancoMensal(int usuario)
+        {
+            try
+            {
+                string query = @$"  SELECT 
+                                    DATEPART(YEAR, E.DATACRIACAO) AS ANO,
+                                    DATEPART(MONTH, E.DATACRIACAO) AS MES ,
+                                    SUM(VALOR) AS VALOR
+                                    FROM EXTRATO E
+                                    INNER JOIN CARTEIRA C ON E.CARTEIRA = C.CODIGO
+                                    WHERE C.USUARIO = {usuario} AND E.STATUS = 1
+                                    GROUP BY DATEPART(MONTH, E.DATACRIACAO), DATEPART(YEAR, E.DATACRIACAO)";
+
+                var retorno = (await _dbConnector.dbConnection.QueryAsync<BalancoDTO>(query, transaction: _dbConnector.dbTransaction)).ToList();
+                return retorno;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

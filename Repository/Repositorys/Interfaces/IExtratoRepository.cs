@@ -16,5 +16,6 @@ namespace Odevez.Repository.Repositorys.Interfaces
         Task<bool> AlterarStatus(ExtratoStatusDTO extrato);
         Task<ExtratoDTO> ObterExtratoPorCodigo(int extrato);
         Task<bool> Alterar(ExtratoDTO objAlterar);
+        Task<List<BalancoDTO>> ObterBalancoMensal(int usuario);
     }
 }

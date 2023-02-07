@@ -4,9 +4,11 @@ using Odevez.Business.ViewModel;
 using Odevez.DTO;
 using Odevez.Repository.Repositorys.Interfaces;
 using Odevez.Repository.UnitOfWork;
+using Odevez.Utils;
 using Odevez.Utils.Enum;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Odevez.Business.Business
@@ -282,6 +284,59 @@ namespace Odevez.Business.Business
                 retorno.Categoria.Codigo = extratoNew.Categoria.Codigo;
 
             return retorno;
+        }
+
+        public async Task<List<BalancoDTO>> ObterBalancoMensal(int usuario)
+        {
+            try
+            {
+                var balancos = await _extratoRepository.ObterBalancoMensal(usuario);
+
+                if (!balancos.Any())
+                {
+                    var mesRetroativo = DateTime.Now.Date.AddMonths(-1).Month.ToString();
+                    var ano = DateTime.Now.Year;
+                    var anoString = ano.ToString().Substring(2, 2);
+
+                    var mesAtual = DateTime.Now.Date.Month.ToString();
+
+                    var retorno = new List<BalancoDTO>
+                    {
+                        new BalancoDTO{   Data = $"{mesRetroativo}/{anoString}", Valor = 0},
+                        new BalancoDTO{   Data = $"{mesAtual}/{anoString}", Valor = 0}
+                    };
+
+                    return retorno;
+                }
+
+                if (balancos.Count() == 1)
+                {
+                    var mes = DateTime.Now.Date.AddMonths(-1).Month;
+                    var ano = DateTime.Now.Year;
+             
+                    var retorno = new List<BalancoDTO>
+                    {
+                        new BalancoDTO{   Mes = mes, Ano = ano, Valor = 0},
+                    };
+
+                    retorno.AddRange(balancos);
+                    balancos.Clear();
+                    balancos = retorno;
+                }
+
+                foreach (var balanco in balancos)
+                {
+                    string mes = DataUtils.ObterMesString(balanco.Mes);
+                    string ano = balanco.Ano.ToString().Substring(2, 2);
+                    balanco.Data = $"{mes}/{ano}";
+                }
+
+                return balancos;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
         }
     }
 }

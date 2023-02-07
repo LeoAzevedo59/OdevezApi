@@ -14,5 +14,6 @@ namespace Odevez.Business.Business.Interfaces
         Task<bool> AlterarStatus(ExtratoStatusDTO extrato);
         Task<ExtratoViewModel> ObterExtratoPorCodigo(int extrato);
         Task<bool> AlterarExtrato(ExtratoViewModel extrato);
+        Task<List<BalancoDTO>> ObterBalancoMensal(int usuario);
     }
 }
