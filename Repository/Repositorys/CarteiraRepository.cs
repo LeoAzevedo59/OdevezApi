@@ -61,7 +61,9 @@ namespace Odevez.Repository.Repositorys
                 string query = @$"SELECT 
                                     C.CODIGO,
                                     C.DESCRICAO,
-                                    C.USUARIO
+                                    C.USUARIO,
+                                    C.MOVIMENTACAO,
+                                    C.COR
                                   FROM 
                                     CATEGORIA C
                                     LEFT JOIN USUARIO U ON C.USUARIO = U.CODIGO
