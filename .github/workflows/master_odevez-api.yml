@@ -53,5 +53,5 @@ jobs:
         with:
           app-name: 'odevez-api'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_A7572EF680C241389AF89B44CDDA173A }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3F3413A5CEA746B38BE92B4CB290C55D }}
           package: .
