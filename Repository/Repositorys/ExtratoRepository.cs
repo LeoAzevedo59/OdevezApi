@@ -394,5 +394,40 @@ namespace Odevez.Repository.Repositorys
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<ResponseDashDTO> ObterDashboardPizza(FiltroDashPizzaDTO filtro)
+        {
+            try
+            {
+                var retorno = new ResponseDashDTO();
+                retorno.Dados = new List<DashPizzaDTO>();
+
+                string query = @$"  SELECT
+                                    E.CODIGO,
+                                    E.DESCRICAO AS CATEGORIA,
+                                    E.VALOR,
+                                    CAT.COR,
+                                    E.MOVIMENTACAO
+                                    FROM EXTRATO E
+                                    INNER JOIN CATEGORIA CAT ON E.CATEGORIA = CAT.CODIGO
+                                    INNER JOIN CARTEIRA CAR ON E.CARTEIRA = CAR.CODIGO
+                                    WHERE
+                                    CAR.USUARIO = {filtro.Usuario} AND
+                                    E.STATUS = 1 AND
+                                    E.DATACRIACAO BETWEEN '{filtro.DataInicio.ToString("yyyy/MM/dd")}' AND '{filtro.DataFim.ToString("yyyy/MM/dd")}'";
+
+                if (filtro.Movimentacao > 0)
+                    query += $" AND E.MOVIMENTACAO = {(int)filtro.Movimentacao}";
+
+                retorno.Dados = (await _dbConnector.dbConnection.QueryAsync<DashPizzaDTO>(query, transaction: _dbConnector.dbTransaction)).ToList();
+                retorno.ValorTotal = retorno.Dados.Sum(s => s.Valor);
+
+                return retorno;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

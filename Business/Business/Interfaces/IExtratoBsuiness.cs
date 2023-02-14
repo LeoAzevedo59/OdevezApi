@@ -15,5 +15,6 @@ namespace Odevez.Business.Business.Interfaces
         Task<ExtratoViewModel> ObterExtratoPorCodigo(int extrato);
         Task<bool> AlterarExtrato(ExtratoViewModel extrato);
         Task<List<BalancoDTO>> ObterBalancoMensal(int usuario);
+        Task<ResponseDashDTO> ObterDashboardPizza(FiltroDashPizzaDTO filtro);
     }
 }

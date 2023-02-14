@@ -313,7 +313,7 @@ namespace Odevez.Business.Business
                 {
                     var mes = DateTime.Now.Date.AddMonths(-1).Month;
                     var ano = DateTime.Now.Year;
-             
+
                     var retorno = new List<BalancoDTO>
                     {
                         new BalancoDTO{   Mes = mes, Ano = ano, Valor = 0},
@@ -337,6 +337,17 @@ namespace Odevez.Business.Business
             {
                 return null;
             }
+        }
+
+        public async Task<ResponseDashDTO> ObterDashboardPizza(FiltroDashPizzaDTO filtro)
+        {
+            var dados = await _extratoRepository.ObterDashboardPizza(filtro);
+            foreach (var dado in dados.Dados)
+            {
+                if (dado.Valor < 0)
+                    dado.Valor *= -1;
+            }
+            return dados;
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Odevez.DTO;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -17,5 +16,6 @@ namespace Odevez.Repository.Repositorys.Interfaces
         Task<ExtratoDTO> ObterExtratoPorCodigo(int extrato);
         Task<bool> Alterar(ExtratoDTO objAlterar);
         Task<List<BalancoDTO>> ObterBalancoMensal(int usuario);
+        Task<ResponseDashDTO> ObterDashboardPizza(FiltroDashPizzaDTO filtro);
     }
 }

@@ -85,5 +85,13 @@ namespace Odevez.API.Controllers
             var retorno = await _extratoBsuiness.ObterBalancoMensal(usuario);
             return Ok(retorno);
         }
+
+        [HttpPost]
+        [Route("obter-dashboard-pizza")]
+        public async Task<IActionResult> ObterDashboardPizza([FromBody] FiltroDashPizzaDTO filtro)
+        {
+            var retorno = await _extratoBsuiness.ObterDashboardPizza(filtro);
+            return Ok(retorno);
+        }
     }
 }
