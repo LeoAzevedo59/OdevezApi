@@ -1,4 +1,6 @@
-﻿namespace Odevez.Utils
+﻿using System;
+
+namespace Odevez.Utils
 {
     public static class DataUtils
     {
@@ -33,6 +35,25 @@
                 default:
                     return "";
             }
+        }
+
+        public static DateTime RetornaDataStringToDate(string data)
+        {
+            string data_ano = "";
+            string data_mes = "";
+            string data_dia = "";
+
+            if (string.IsNullOrEmpty(data))
+                return DateTime.Now;
+
+            if (data.Length < 8)
+                return DateTime.Now;
+
+            data_ano = data.Substring(0, 4);
+            data_mes = data.Substring(4, 2);
+            data_dia = data.Substring(6, 2);
+
+            return Convert.ToDateTime(string.Concat(data_ano, "/", data_mes, "/", data_dia));
         }
     }
 }

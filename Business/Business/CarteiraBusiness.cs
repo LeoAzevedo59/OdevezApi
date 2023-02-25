@@ -45,9 +45,9 @@ namespace Odevez.Business.Business
                 var carteiraViewModel = _mapper.Map<List<CarteiraExtratoViewModel>>(retornoDTO);
                 return carteiraViewModel;
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                throw;
+                throw new Exception(e.Message);
             }
 
         }
@@ -66,9 +66,9 @@ namespace Odevez.Business.Business
                 return categoriaViewModel;
 
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                throw;
+                throw new Exception(e.Message);
             }
         }
 
@@ -81,9 +81,9 @@ namespace Odevez.Business.Business
                 return categoriaViewModel;
 
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                throw;
+                throw new Exception(e.Message);
             }
         }
 
@@ -180,11 +180,10 @@ namespace Odevez.Business.Business
 
                 return retorno;
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
                 _unitOfWork.RollbackTransaction();
-
-                throw;
+                throw new Exception(e.Message);
             }
         }
 

@@ -40,10 +40,10 @@ namespace Odevez.Business.Business
                 _unitOfWork.CommitTransaction();
                 return retorno;
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
                 _unitOfWork.RollbackTransaction();
-                throw;
+                throw new Exception(e.Message);
             }
         }
 
@@ -66,9 +66,9 @@ namespace Odevez.Business.Business
                 var extratoViewModel = _mapper.Map<List<ExtratoViewModel>>(retornoDTO);
                 return extratoViewModel;
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                throw;
+                throw new Exception(e.Message);
             }
         }
 
@@ -84,10 +84,10 @@ namespace Odevez.Business.Business
 
                 _unitOfWork.CommitTransaction();
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
                 _unitOfWork.RollbackTransaction();
-                throw;
+                throw new Exception(e.Message);
             }
         }
 
@@ -97,9 +97,9 @@ namespace Odevez.Business.Business
             {
                 return await _extratoRepository.ObterValorExtratoPorCodigo(extrato);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                throw;
+                throw new Exception(e.Message);
             }
         }
 
@@ -112,9 +112,9 @@ namespace Odevez.Business.Business
                 var extratoViewModel = _mapper.Map<ExtratoMesFiltroViewModel>(retornoDTO);
                 return extratoViewModel;
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                throw;
+                throw new Exception(e.Message);
             }
         }
 
@@ -188,10 +188,10 @@ namespace Odevez.Business.Business
 
                 return retorno;
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
                 _unitOfWork.RollbackTransaction();
-                throw;
+                throw new Exception(e.Message);
             }
 
         }
@@ -204,9 +204,9 @@ namespace Odevez.Business.Business
                 var extratoViewModel = _mapper.Map<ExtratoViewModel>(retornoDTO);
                 return extratoViewModel;
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                throw;
+                throw new Exception(e.Message);
             }
         }
 
@@ -251,10 +251,10 @@ namespace Odevez.Business.Business
 
                 return retorno;
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
                 _unitOfWork.RollbackTransaction();
-                throw;
+                throw new Exception(e.Message);
             }
         }
 
@@ -335,7 +335,7 @@ namespace Odevez.Business.Business
             }
             catch (Exception e)
             {
-                return null;
+                throw new Exception(e.Message);
             }
         }
 

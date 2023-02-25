@@ -96,7 +96,6 @@ namespace Odevez.Repository.Repositorys
             {
                 throw new Exception(ex.Message);
             }
-            return false;
         }
 
         public async Task<string> InserirApelido(UsuarioDTO usuario)

@@ -78,8 +78,6 @@ namespace Odevez.Repository.Repositorys
             {
                 throw new Exception(ex.Message);
             }
-
-            return retorno;
         }
 
         public async Task<List<TipoCarteiraDTO>> ObterTipoCarteira()

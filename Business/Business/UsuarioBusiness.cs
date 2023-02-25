@@ -95,9 +95,9 @@ namespace Odevez.Business.Business
 
                 return await _usuarioRepository.InserirApelido(usuario);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                throw;
+                throw new Exception(e.Message);
             }
         }
 
