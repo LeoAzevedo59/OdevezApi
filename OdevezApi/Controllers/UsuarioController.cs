@@ -114,5 +114,12 @@ namespace Odevez.API.Controllers
         {
             return Ok(await _usuarioBusiness.IncluirImagemPerfilAzure(uploadImage));
         }
+
+        [HttpDelete]
+        [Route("excluir")]
+        public async Task<IActionResult> Excluir(int user)
+        {
+            return Ok(await _usuarioBusiness.Excluir(user));
+        }
     }
 }

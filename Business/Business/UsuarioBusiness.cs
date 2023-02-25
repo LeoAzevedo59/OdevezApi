@@ -119,5 +119,10 @@ namespace Odevez.Business.Business
         {
             await _usuarioRepository.IncluirImagemPerfil(nomeImagem, usuario);
         }
+
+        public async Task<bool> Excluir(int user)
+        {
+            return await _usuarioRepository.Excluir(user);
+        }
     }
 }

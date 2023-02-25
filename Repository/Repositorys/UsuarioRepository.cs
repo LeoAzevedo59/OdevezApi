@@ -149,5 +149,30 @@ namespace Odevez.Repository.Repositorys
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<bool> Excluir(int user)
+        {
+            try
+            {
+                string query = $@"  DELETE EXTRATO
+                                    WHERE CARTEIRA IN (SELECT CODIGO FROM CARTEIRA WHERE USUARIO = {user})
+
+                                    DELETE CARTEIRA
+                                    WHERE USUARIO = {user}
+
+                                    DELETE BANCO
+                                    WHERE USUARIO = {user}
+
+                                    DELETE USUARIO
+                                    WHERE CODIGO = {user}";
+
+                var retorno = await _dbConnector.dbConnection.ExecuteAsync(query, transaction: _dbConnector.dbTransaction);
+            return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

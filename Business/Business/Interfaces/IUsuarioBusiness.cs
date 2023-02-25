@@ -11,5 +11,6 @@ namespace Odevez.Business.Business.Interfaces
         Task<string> InserirApelido(UsuarioDTO usuario);
         Task<string> ObterNomePorCodigo(int usuario);
         Task<string> IncluirImagemPerfilAzure(UploadImageDTO uploadImage);
+        Task<bool> Excluir(int user);
     }
 }
