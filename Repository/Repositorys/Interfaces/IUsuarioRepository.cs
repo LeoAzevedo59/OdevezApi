@@ -10,7 +10,7 @@ namespace Odevez.Repository.Repositorys.Interfaces
         Task<bool> ObterUsuarioPorId(long id);
         Task<UsuarioDTO> ObterUsuarioPorCelular(string celular);
         Task<string> InserirApelido(UsuarioDTO usuario);
-        Task<string> ObterNomePorCodigo(int usuario);
+        Task<string> ObterNomePorCodigo(long usuario);
         Task IncluirImagemPerfil(string nomeImagem, int usuario);
         Task<bool> Excluir(int user);
     }

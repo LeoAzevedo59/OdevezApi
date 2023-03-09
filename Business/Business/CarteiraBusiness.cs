@@ -133,9 +133,10 @@ namespace Odevez.Business.Business
                         var retBanco = await _bancoRepository.Incluir(carteira.BancoDTO);
 
                         if (retBanco > 0)
+                        {
                             codigoBanco = await _bancoRepository.ObterPorIspb(carteira.BancoDTO.ispb);
-                        else
-                            new Exception();
+                            carteira.BancoDTO.Codigo = codigoBanco;
+                        }
                     }
                 }
 
@@ -156,7 +157,7 @@ namespace Odevez.Business.Business
 
                     var categoria = new CategoriaDTO
                     {
-                        Codigo = 6 // Outros
+                        Codigo = 5 // Outros
                     };
 
                     var movimentacao = new MovimentacaoDTO

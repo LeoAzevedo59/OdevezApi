@@ -26,31 +26,48 @@ namespace Odevez.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> LoginClient(string celular, string senha)
         {
-            var tokenUsuario = new TokenUsuarioDTO();
-            var usuario = new UsuarioDTO();
-
             try
             {
                 if (string.IsNullOrEmpty(senha))
                     return BadRequest("Senha é obrigatório.");
+
+                var retorno = await Logar(celular, senha);
+
+                if (retorno == null)
+                    return BadRequest("Senha incorreta ou usário não cadastrado.");
+
+                return Ok(retorno);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        private async Task<TokenUsuarioDTO> Logar(string celular, string senha)
+        {
+            try
+            {
+                var tokenUsuario = new TokenUsuarioDTO();
+                var usuario = new UsuarioDTO();
 
                 var retorno = await _autenticarBusiness.LoginUsuario(celular, senha);
 
                 if (retorno != null)
                     usuario = await _usuarioBusiness.ObterUsuarioPorCelular(celular);
                 else
-                    return BadRequest("Senha incorreta ou usário não cadastrado.");
+                    return null;
                 tokenUsuario.Token = retorno.Token;
                 tokenUsuario.Type = retorno.Type;
                 tokenUsuario.Apelido = usuario.Apelido;
                 tokenUsuario.Codigo = usuario.Codigo;
                 tokenUsuario.Imagem = usuario.Imagem;
 
-                return Ok(tokenUsuario);
+                return tokenUsuario;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                return null;
             }
         }
 
@@ -63,8 +80,11 @@ namespace Odevez.API.Controllers
             {
                 var retorno = await _usuarioBusiness.InserirUsuario(usuario);
 
-                if (retorno)
-                    return Ok("Usuário cadastrado com sucesso.");
+                if (retorno > 0)
+                {
+                    var cliente = await Logar(usuario.Celular, usuario.Senha);
+                    return Ok(cliente);
+                }
 
                 return BadRequest("Erro");
             }
@@ -94,8 +114,9 @@ namespace Odevez.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         [Route("obter-nome")]
-        public async Task<IActionResult> ObterNomePorCodigo(int usuario)
+        public async Task<IActionResult> ObterNomePorCodigo(long usuario)
         {
             try
             {

@@ -118,7 +118,7 @@ namespace Odevez.Repository.Repositorys
             }
         }
 
-        public async Task<string> ObterNomePorCodigo(int usuario)
+        public async Task<string> ObterNomePorCodigo(long usuario)
         {
             try
             {

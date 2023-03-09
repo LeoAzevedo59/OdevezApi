@@ -18,7 +18,7 @@ namespace Odevez.Business.Business
             _autenticarBusiness = autenticarBusiness;
         }
 
-        public async Task<bool> InserirUsuario(UsuarioDTO usuario)
+        public async Task<long> InserirUsuario(UsuarioDTO usuario)
         {
             try
             {
@@ -44,7 +44,10 @@ namespace Odevez.Business.Business
                 string senhaPassword = _autenticarBusiness.CriptografarSenha(usuario.Senha);
                 usuario.SenhaHash = senhaPassword;
 
-                return await _usuarioRepository.InserirUsuario(usuario);
+                if (await _usuarioRepository.InserirUsuario(usuario))
+                    return usuario.Id;
+
+                return 0;
             }
             catch (Exception ex)
             {
@@ -101,7 +104,7 @@ namespace Odevez.Business.Business
             }
         }
 
-        public async Task<string> ObterNomePorCodigo(int usuario)
+        public async Task<string> ObterNomePorCodigo(long usuario)
         {
             return await _usuarioRepository.ObterNomePorCodigo(usuario);
         }
