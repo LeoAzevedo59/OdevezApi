@@ -9,5 +9,7 @@ namespace Odevez.DTO
         public DateTime DataFim { get; set; }
         public MovimentacaoEnum Movimentacao { get; set; }
         public int Usuario { get; set; }
+        public string DataInicioStrg { get; set; }
+        public string DataFimStrg { get; set; }
     }
 }

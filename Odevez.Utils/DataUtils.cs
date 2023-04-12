@@ -55,5 +55,30 @@ namespace Odevez.Utils
 
             return Convert.ToDateTime(string.Concat(data_ano, "/", data_mes, "/", data_dia));
         }
+
+        public static DateTime ConvertStringToDate(string date)
+        {
+            var retorno = new DateTime();
+
+            try
+            {
+                string data_ano = "";
+                string data_mes = "";
+                string data_dia = "";
+
+                if (string.IsNullOrEmpty(date))
+                    return DateTime.Now;
+
+                var arrayDate = date.Split('/');
+
+                data_ano = arrayDate[0];
+                data_mes = arrayDate[1];
+                data_dia = arrayDate[2];
+
+                retorno = Convert.ToDateTime(string.Concat(data_ano, "/", data_mes, "/", data_dia));
+            }
+            catch (Exception ex) { }
+            return retorno;
+        }
     }
 }

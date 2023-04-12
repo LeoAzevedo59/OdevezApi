@@ -341,12 +341,26 @@ namespace Odevez.Business.Business
 
         public async Task<ResponseDashDTO> ObterDashboardPizza(FiltroDashPizzaDTO filtro)
         {
-            var dados = await _extratoRepository.ObterDashboardPizza(filtro);
-            foreach (var dado in dados.Dados)
+            var dados = new ResponseDashDTO();
+           
+            try
             {
-                if (dado.Valor < 0)
-                    dado.Valor *= -1;
+                filtro.DataInicio = Utils.DataUtils.ConvertStringToDate(filtro.DataInicioStrg);
+                filtro.DataFim = Utils.DataUtils.ConvertStringToDate(filtro.DataFimStrg);
+
+                dados = await _extratoRepository.ObterDashboardPizza(filtro);
+                foreach (var dado in dados.Dados)
+                {
+                    if (dado.Valor < 0)
+                        dado.Valor *= -1;
+                }
             }
+            catch (Exception e)
+            {
+
+                throw;
+            }
+
             return dados;
         }
     }
